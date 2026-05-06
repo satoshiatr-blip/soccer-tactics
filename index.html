@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, interactive-widget=resizes-content, viewport-fit=cover">
 <title>⚽ 作戦ボード</title>
 <style>
 /* ── THEME: DEEP OCEAN (default) ── */
@@ -76,7 +76,7 @@ canvas,#canvas,#cWrap{transition:none!important;}
 #memoTx{color:var(--txt);font-size:10px;line-height:1.5;white-space:pre-wrap;}
 
 /* ── BOTTOM BAR ── */
-#bbar{flex-shrink:0;background:var(--sur);border-top:1px solid var(--bd);padding:3px 5px 3px;display:flex;flex-direction:column;gap:2px;}
+#bbar{flex-shrink:0;background:var(--sur);border-top:1px solid var(--bd);padding:4px 12px 8px;padding-bottom:max(8px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:3px;}
 
 /* ── TOOL GROUP (ツリー親) ── */
 .tg{display:flex;align-items:center;gap:2px;flex-wrap:nowrap;overflow-x:auto;}
@@ -204,9 +204,9 @@ canvas,#canvas,#cWrap{transition:none!important;}
     </div>
     <button class="iBtn" id="btnFlip" onclick="confirmFlip()" title="コートチェンジ">↕️</button>
     <div class="field-toggle">
-      <button class="ftp on" id="thOcean" onclick="setTheme('ocean')">🌊</button>
-      <button class="ftp"    id="thField" onclick="setTheme('field')">🟢</button>
-      <button class="ftp"    id="thWhite" onclick="setTheme('white')">☀️</button>
+      <button class="ftp on" id="thOcean" onclick="setTheme('ocean')" style="color:#00d4ff;font-weight:900;font-size:11px;">Sea</button>
+      <button class="ftp"    id="thField" onclick="setTheme('field')" style="color:#4ade80;font-weight:900;font-size:11px;">Grn</button>
+      <button class="ftp"    id="thWhite" onclick="setTheme('white')" style="color:#f5c518;font-weight:900;font-size:11px;">Day</button>
     </div>
     <button class="iBtn" onclick="openHelp()">❓</button>
   </div>
