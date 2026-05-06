@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TACTICS BOARD</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;700;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:#07100a;
+  font-family:'Noto Sans JP',sans-serif;
+  color:#e8f5e8;
+  max-width:480px;
+  margin:0 auto;
+}
+
+/* ─── SECTION ─── */
+.sec{
+  padding:48px 20px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+
+/* ─── LABEL ─── */
+.lbl{
+  font-size:9px;font-weight:700;letter-spacing:3px;
+  color:#4ade80;text-transform:uppercase;
+  margin-bottom:4px;
+}
+
+/* ─── HERO ─── */
+.hero{
+  padding:56px 20px 40px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  background:radial-gradient(ellipse 120% 60% at 50% 0%, rgba(74,222,128,0.08) 0%, transparent 70%);
+}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:9px;font-weight:700;letter-spacing:2px;color:#4ade80;
+  background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);
+  padding:5px 12px;border-radius:100px;margin-bottom:20px;
+}
+.live{width:6px;height:6px;border-radius:50%;background:#4ade80;animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.hero-h1{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:72px;letter-spacing:4px;line-height:0.9;
+  margin-bottom:14px;
+}
+.hero-h1 em{color:#4ade80;font-style:normal;display:block;}
+.hero-desc{
+  font-size:13px;color:rgba(200,240,200,0.55);
+  line-height:1.7;margin-bottom:24px;
+}
+.hero-desc strong{color:#e8f5e8;}
+.url-box{transition:all 0.2s;
+  display:flex;align-items:center;gap:8px;
+  background:rgba(74,222,128,0.06);
+  border:1px solid rgba(74,222,128,0.2);
+  border-radius:10px;padding:12px 16px;
+  font-family:'Space Mono',monospace;
+  font-size:11px;color:#4ade80;
+  word-break:break-all;
+}
+.url-box:hover,.url-box:active{background:rgba(74,222,128,0.12);border-color:rgba(74,222,128,0.4);}
+.stats{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1px;background:rgba(255,255,255,0.05);
+  border-radius:12px;overflow:hidden;
+  margin-top:20px;
+}
+.stat{
+  background:#07100a;
+  padding:14px 8px;text-align:center;
+}
+.stat-n{font-family:'Bebas Neue',sans-serif;font-size:26px;color:#4ade80;line-height:1;}
+.stat-l{font-size:9px;color:rgba(200,240,200,0.4);margin-top:2px;letter-spacing:0.5px;}
+
+/* ─── STEPS ─── */
+.steps{display:flex;flex-direction:column;gap:8px;}
+.step{
+  display:flex;align-items:center;gap:14px;
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:10px;padding:14px 16px;
+}
+.sn{
+  font-family:'Bebas Neue',sans-serif;font-size:28px;
+  color:rgba(74,222,128,0.2);line-height:1;
+  width:28px;flex-shrink:0;text-align:center;
+}
+.st{font-weight:900;font-size:13px;}
+.sd{font-size:11px;color:rgba(200,240,200,0.45);margin-top:2px;}
+.stag{
+  margin-left:auto;flex-shrink:0;
+  font-size:9px;font-weight:700;
+  color:rgba(74,222,128,0.6);
+  background:rgba(74,222,128,0.07);
+  border:1px solid rgba(74,222,128,0.15);
+  padding:3px 8px;border-radius:100px;
+  white-space:nowrap;
+}
+
+/* ─── HEAT FEATURE ─── */
+.heat-card{
+  background:rgba(74,222,128,0.03);
+  border:1px solid rgba(74,222,128,0.18);
+  border-radius:14px;overflow:hidden;
+  margin-bottom:16px;
+}
+.hc-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;
+  border-bottom:1px solid rgba(74,222,128,0.1);
+}
+.hc-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:#4ade80;}
+.hc-badge{
+  font-size:8px;font-weight:700;letter-spacing:1px;
+  color:#f5c518;background:rgba(245,197,24,0.1);
+  border:1px solid rgba(245,197,24,0.2);
+  padding:3px 8px;border-radius:100px;
+}
+.hc-body{display:flex;gap:0;}
+.hc-text{flex:1;padding:16px;}
+.hc-desc{font-size:12px;color:rgba(200,240,200,0.55);line-height:1.7;margin-bottom:12px;}
+.hc-desc strong{color:#e8f5e8;}
+.legend{display:flex;flex-direction:column;gap:5px;}
+.li{display:flex;align-items:center;gap:7px;font-size:11px;color:#e8f5e8;}
+.ld{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+.hc-canvas{
+  flex-shrink:0;background:#0d1a0f;
+  display:flex;align-items:center;justify-content:center;
+  padding:12px;
+  border-left:1px solid rgba(74,222,128,0.1);
+}
+
+/* ─── PASS CARD ─── */
+.pass-card{
+  border:1px solid rgba(0,212,255,0.15);
+  border-radius:14px;overflow:hidden;
+  background:rgba(0,212,255,0.02);
+}
+.pc-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;
+  border-bottom:1px solid rgba(0,212,255,0.1);
+}
+.pc-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;color:#00d4ff;}
+.pc-sub{font-size:10px;color:rgba(0,212,255,0.5);}
+.pc-body{display:flex;gap:0;}
+.pc-canvas{
+  flex-shrink:0;background:#0d1a0f;
+  display:flex;align-items:center;justify-content:center;
+  padding:12px;
+  border-right:1px solid rgba(0,212,255,0.1);
+}
+.pc-legend{flex:1;padding:16px;display:flex;flex-direction:column;gap:10px;justify-content:center;}
+.pl{display:flex;align-items:center;gap:10px;}
+.pl-line{flex-shrink:0;width:28px;height:3px;border-radius:2px;}
+.pl-t strong{font-size:12px;color:#e8f5e8;display:block;}
+.pl-t span{font-size:10px;color:rgba(200,240,200,0.4);}
+
+/* ─── OPS ─── */
+.ops{display:flex;flex-direction:column;gap:6px;}
+.op{
+  display:flex;align-items:center;gap:12px;
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:10px;padding:12px 14px;
+}
+.oi{font-size:22px;flex-shrink:0;}
+.ot{font-weight:900;font-size:13px;}
+.od{font-size:11px;color:rgba(200,240,200,0.45);margin-top:2px;}
+.otag{
+  margin-left:auto;flex-shrink:0;
+  font-size:9px;font-weight:700;color:rgba(200,240,200,0.35);
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.07);
+  padding:3px 8px;border-radius:100px;white-space:nowrap;
+}
+
+/* ─── SCENARIOS ─── */
+.scns{display:flex;flex-direction:column;gap:10px;}
+.scn{
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:12px;overflow:hidden;
+}
+.scn-h{
+  display:flex;align-items:center;gap:10px;
+  padding:11px 14px;
+  background:rgba(255,255,255,0.02);
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.scn-ico{font-size:16px;}
+.scn-ttl{font-weight:900;font-size:13px;}
+.scn-steps{display:flex;flex-direction:column;gap:0;}
+.ss{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:9px 14px;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.ss:last-child{border-bottom:none;}
+.ssn{
+  width:18px;height:18px;border-radius:50%;
+  background:rgba(74,222,128,0.1);color:#4ade80;
+  font-size:9px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px;
+}
+.sst{font-size:12px;color:rgba(200,240,200,0.55);line-height:1.5;}
+.sst strong{color:#e8f5e8;}
+
+/* ─── CTA ─── */
+.cta{padding:48px 20px;text-align:center;}
+.cta-h{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:48px;letter-spacing:4px;margin-bottom:8px;
+}
+.cta-s{font-size:12px;color:rgba(200,240,200,0.4);margin-bottom:24px;letter-spacing:1px;}
+.chips{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:16px;}
+.chip{
+  font-size:10px;font-weight:700;letter-spacing:0.5px;
+  padding:5px 11px;border-radius:100px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.07);
+  color:rgba(200,240,200,0.4);
+}
+canvas{display:block;border-radius:6px;}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag"><span class="live"></span>少年サッカー向け 無料Webアプリ</div>
+  <div class="hero-h1">TACTICS<em>BOARD</em></div>
+  <p class="hero-desc">
+    コーチの説明が<strong>劇的に伝わるデジタル作戦ボード</strong>。<br>
+    URLを開くだけ。インストール不要。完全無料。
+  </p>
+  <a class="url-box" href="https://satoshiatr-blip.github.io/soccer-tactics/" target="_blank" style="text-decoration:none;cursor:pointer;">
+    <span class="live"></span>
+    satoshiatr-blip.github.io/soccer-tactics/
+  </a>
+  <div class="stats">
+    <div class="stat"><div class="stat-n">4</div><div class="stat-l">人数モード</div></div>
+    <div class="stat"><div class="stat-n">14</div><div class="stat-l">陣形</div></div>
+    <div class="stat"><div class="stat-n">0円</div><div class="stat-l">完全無料</div></div>
+    <div class="stat"><div class="stat-n">不要</div><div class="stat-l">インストール</div></div>
+  </div>
+</div>
+
+<!-- STEP -->
+<div class="sec">
+  <div class="lbl">Getting Started</div>
+  <h2 style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;margin-bottom:20px;">はじめ方</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="sn">1</div>
+      <div>
+        <div class="st">📱 URLをSafariで開く</div>
+        <div class="sd">アプリ不要。iPhone / iPad / PC 対応</div>
+      </div>
+      <div class="stag">即起動</div>
+    </div>
+    <div class="step">
+      <div class="sn">2</div>
+      <div>
+        <div class="st">⚽ 人数・陣形を選んで配置</div>
+        <div class="sd">3〜11人制。選手はドラッグで自由に移動</div>
+      </div>
+      <div class="stag">14種の陣形</div>
+    </div>
+    <div class="step">
+      <div class="sn">3</div>
+      <div>
+        <div class="st">💾 保存してLINEで共有</div>
+        <div class="sd">写真保存 or QRコードで即送信</div>
+      </div>
+      <div class="stag">LINEで送れる</div>
+    </div>
+  </div>
+</div>
+
+<!-- HIGHLIGHT FEATURES -->
+<div class="sec" style="background:rgba(74,222,128,0.015);">
+  <div class="lbl">Highlight Feature</div>
+  <h2 style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;margin-bottom:20px;">目玉機能</h2>
+
+  <div class="heat-card">
+    <div class="hc-head">
+      <div class="hc-title">🌡️ スペース可視化</div>
+      <div class="hc-badge">★ MOST POWERFUL</div>
+    </div>
+    <div class="hc-body">
+      <div class="hc-text">
+        <p class="hc-desc">
+          守備の手薄エリアを<strong>4色でリアルタイム表示</strong>。<br>
+          選手を動かすと色が即更新。<br>
+          「ここへ走れ！」が一目で伝わる。
+        </p>
+        <div class="legend">
+          <div class="li"><div class="ld" style="background:rgba(80,255,80,0.9);"></div>スペース大（攻めどころ）</div>
+          <div class="li"><div class="ld" style="background:rgba(255,220,0,0.85);"></div>やや空いている</div>
+          <div class="li"><div class="ld" style="background:rgba(20,60,200,0.7);"></div>やや守備あり</div>
+          <div class="li"><div class="ld" style="background:rgba(0,0,100,0.9);"></div>守備が密集</div>
+        </div>
+      </div>
+      <div class="hc-canvas">
+        <canvas id="heatCanvas" width="130" height="172"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="pass-card">
+    <div class="pc-head">
+      <div class="pc-title">〰️ パスライン自動表示</div>
+      <div class="pc-sub">全選手間に常時表示</div>
+    </div>
+    <div class="pc-body">
+      <div class="pc-canvas">
+        <canvas id="passCanvas" width="120" height="158"></canvas>
+      </div>
+      <div class="pc-legend">
+        <div class="pl">
+          <div class="pl-line" style="background:rgba(255,80,80,0.9);height:3px;"></div>
+          <div class="pl-t"><strong>太い実線</strong><span>オープンなコース</span></div>
+        </div>
+        <div class="pl">
+          <div class="pl-line" style="background:repeating-linear-gradient(90deg,rgba(255,140,140,0.5) 0,rgba(255,140,140,0.5) 4px,transparent 4px,transparent 7px);height:2px;"></div>
+          <div class="pl-t"><strong>細い点線</strong><span>ブロックされたコース</span></div>
+        </div>
+        <div class="pl">
+          <div style="width:18px;height:18px;border-radius:50%;border:2px solid #f5c518;flex-shrink:0;"></div>
+          <div class="pl-t"><strong>黄色リング</strong><span>ボール保持者</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 基本操作 -->
+<div class="sec">
+  <div class="lbl">Basic Operations</div>
+  <h2 style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;margin-bottom:20px;">基本操作</h2>
+  <div class="ops">
+    <div class="op">
+      <div class="oi">👆</div>
+      <div><div class="ot">ドラッグで選手・ボールを移動</div><div class="od">動かすたびにパスライン・スペースマップが即更新</div></div>
+      <div class="otag">1本指</div>
+    </div>
+    <div class="op">
+      <div class="oi">✋</div>
+      <div><div class="ot">長押しで名前・番号・向きを編集</div><div class="od">0.6秒押すと編集画面。8方向の向き設定も可能</div></div>
+      <div class="otag">長押し</div>
+    </div>
+    <div class="op">
+      <div class="oi">✏️</div>
+      <div><div class="ot">矢印・ゾーンで動きを書き込む</div><div class="od">描画グループをONにして指でなぞる</div></div>
+      <div class="otag">描画グループ</div>
+    </div>
+    <div class="op">
+      <div class="oi">⚔️</div>
+      <div><div class="ot">攻撃・守備の半面を2倍拡大</div><div class="od">表示グループの攻撃/守備半面ボタン</div></div>
+      <div class="otag">表示グループ</div>
+    </div>
+    <div class="op">
+      <div class="oi">🗂️</div>
+      <div><div class="ot">A/B/Cタブで複数作戦を保存</div><div class="od">最大6パターン。切り替え一瞬</div></div>
+      <div class="otag">作戦グループ</div>
+    </div>
+  </div>
+</div>
+
+<!-- シーン別 -->
+<div class="sec" style="background:rgba(255,255,255,0.01);">
+  <div class="lbl">Use Cases</div>
+  <h2 style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;margin-bottom:20px;">シーン別 使い方</h2>
+  <div class="scns">
+
+    <div class="scn">
+      <div class="scn-h"><span class="scn-ico">🏆</span><span class="scn-ttl">試合前ミーティング</span></div>
+      <div class="scn-steps">
+        <div class="ss"><span class="ssn">1</span><span class="sst"><strong>陣形を選ぶ</strong> 相手チームの配置を再現</span></div>
+        <div class="ss"><span class="ssn">2</span><span class="sst"><strong>スペースマップON</strong> 「ここが空く」を色で説明</span></div>
+        <div class="ss"><span class="ssn">3</span><span class="sst"><strong>矢印で動きを描く</strong> 各選手の役割を明示</span></div>
+        <div class="ss"><span class="ssn">4</span><span class="sst"><strong>LINE送信</strong> 写真保存して全員に共有</span></div>
+      </div>
+    </div>
+
+    <div class="scn">
+      <div class="scn-h"><span class="scn-ico">⏱️</span><span class="scn-ttl">ハーフタイム修正</span></div>
+      <div class="scn-steps">
+        <div class="ss"><span class="ssn">1</span><span class="sst"><strong>↕️反転</strong> コートチェンジを再現</span></div>
+        <div class="ss"><span class="ssn">2</span><span class="sst"><strong>作戦Bに切り替え</strong> 修正した配置に変更</span></div>
+        <div class="ss"><span class="ssn">3</span><span class="sst"><strong>守備半面表示</strong> 守備の問題点を拡大説明</span></div>
+      </div>
+    </div>
+
+    <div class="scn">
+      <div class="scn-h"><span class="scn-ico">⚡</span><span class="scn-ttl">セットプレー説明</span></div>
+      <div class="scn-steps">
+        <div class="ss"><span class="ssn">1</span><span class="sst"><strong>セットプレー選択</strong> CK・FKを一発呼び出し</span></div>
+        <div class="ss"><span class="ssn">2</span><span class="sst"><strong>攻撃半面表示</strong> 2倍拡大でわかりやすく</span></div>
+        <div class="ss"><span class="ssn">3</span><span class="sst"><strong>ゾーン・矢印で描く</strong> ターゲットと動線を明示</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta">
+  <div class="lbl" style="margin-bottom:8px;">今すぐ無料で使う</div>
+  <div class="cta-h">OPEN & PLAY</div>
+  <p class="cta-s">URLを開くだけ。登録・インストール不要。</p>
+  <a class="url-box" href="https://satoshiatr-blip.github.io/soccer-tactics/" target="_blank" style="text-decoration:none;cursor:pointer;">
+    <span class="live"></span>
+    satoshiatr-blip.github.io/soccer-tactics/
+  </a>
+  <div class="chips">
+    <span class="chip">✓ 完全無料</span>
+    <span class="chip">✓ iPhone/iPad/PC</span>
+    <span class="chip">✓ インストール不要</span>
+    <span class="chip">✓ オフライン動作</span>
+  </div>
+</div>
+
+<script>
+// HEATMAP
+(function(){
+  const c=document.getElementById('heatCanvas');if(!c)return;
+  const x=c.getContext('2d'),W=130,H=172;
+  for(let i=0;i<7;i++){x.fillStyle=i%2===0?'#1c4220':'#163818';x.fillRect(i*W/7,0,W/7+1,H);}
+  x.strokeStyle='rgba(255,255,255,0.4)';x.lineWidth=1;
+  x.strokeRect(3,3,W-6,H-6);
+  x.beginPath();x.moveTo(3,H/2);x.lineTo(W-3,H/2);x.stroke();
+  x.beginPath();x.arc(W/2,H/2,22,0,Math.PI*2);x.stroke();
+  x.strokeRect(W*.25,3,W*.5,H*.12);x.strokeRect(W*.25,H-3-H*.12,W*.5,H*.12);
+
+  const defs=[
+    {x:W*.5,y:H*.07},{x:W*.2,y:H*.18},{x:W*.5,y:H*.17},{x:W*.8,y:H*.18},
+    {x:W*.13,y:H*.3},{x:W*.5,y:H*.29},{x:W*.87,y:H*.3},{x:W*.5,y:H*.43}
+  ];
+  const res=20;
+  for(let gx=0;gx<res;gx++)for(let gy=0;gy<res;gy++){
+    const lx=(gx+.5)*W/res,ly=(gy+.5)*H/res;
+    let md=Infinity;
+    defs.forEach(d=>{const dd=Math.hypot(d.x-lx,d.y-ly);if(dd<md)md=dd;});
+    x.fillStyle=md<12?'rgba(0,0,100,0.72)':md<22?'rgba(20,60,200,0.55)':md<36?'rgba(255,220,0,0.72)':'rgba(80,255,80,0.82)';
+    x.fillRect(gx*W/res,gy*H/res,W/res+1,H/res+1);
+  }
+  defs.forEach(d=>{
+    x.beginPath();x.arc(d.x,d.y,6,0,Math.PI*2);
+    const g=x.createRadialGradient(d.x-1,d.y-1,0,d.x,d.y,6);
+    g.addColorStop(0,'#ff8895');g.addColorStop(1,'#e8334a');
+    x.fillStyle=g;x.fill();x.strokeStyle='#ff9999';x.lineWidth=1;x.stroke();
+  });
+  [{x:W*.5,y:H*.9},{x:W*.2,y:H*.78},{x:W*.5,y:H*.76},{x:W*.8,y:H*.78},
+   {x:W*.13,y:H*.63},{x:W*.5,y:H*.61},{x:W*.87,y:H*.63},{x:W*.5,y:H*.51}
+  ].forEach(a=>{
+    x.beginPath();x.arc(a.x,a.y,6,0,Math.PI*2);
+    const g=x.createRadialGradient(a.x-1,a.y-1,0,a.x,a.y,6);
+    g.addColorStop(0,'#80a8ff');g.addColorStop(1,'#2d6de8');
+    x.fillStyle=g;x.fill();x.strokeStyle='#80a8ff';x.lineWidth=1;x.stroke();
+  });
+})();
+
+// PASSLINE
+(function(){
+  const c=document.getElementById('passCanvas');if(!c)return;
+  const x=c.getContext('2d'),W=120,H=158;
+  for(let i=0;i<6;i++){x.fillStyle=i%2===0?'#1c4220':'#163818';x.fillRect(i*W/6,0,W/6+1,H);}
+  x.strokeStyle='rgba(255,255,255,0.4)';x.lineWidth=1;
+  x.strokeRect(3,3,W-6,H-6);
+  x.beginPath();x.moveTo(3,H/2);x.lineTo(W-3,H/2);x.stroke();
+  x.beginPath();x.arc(W/2,H/2,20,0,Math.PI*2);x.stroke();
+  x.strokeRect(W*.25,3,W*.5,H*.12);x.strokeRect(W*.25,H-3-H*.12,W*.5,H*.12);
+
+  const allies=[
+    {x:W*.5,y:H*.88,bh:true},{x:W*.2,y:H*.74},{x:W*.5,y:H*.72},{x:W*.8,y:H*.74},
+    {x:W*.13,y:H*.58},{x:W*.5,y:H*.56},{x:W*.87,y:H*.58},{x:W*.5,y:H*.44}
+  ];
+  const defs=[
+    {x:W*.5,y:H*.12},{x:W*.2,y:H*.22},{x:W*.8,y:H*.22},
+    {x:W*.13,y:H*.34},{x:W*.5,y:H*.32},{x:W*.87,y:H*.34},{x:W*.5,y:H*.43},{x:W*.34,y:H*.46}
+  ];
+  const bh=allies[0];
+  for(let i=0;i<allies.length;i++)for(let j=i+1;j<allies.length;j++){
+    const p1=allies[i],p2=allies[j];
+    let blk=false;
+    defs.forEach(d=>{
+      const dx=p2.x-p1.x,dy=p2.y-p1.y,l2=dx*dx+dy*dy;
+      if(!l2)return;
+      const t=Math.max(0,Math.min(1,((d.x-p1.x)*dx+(d.y-p1.y)*dy)/l2));
+      if(Math.hypot(d.x-(p1.x+t*dx),d.y-(p1.y+t*dy))<20)blk=true;
+    });
+    const fh=(p1===bh||p2===bh),op=blk?.2:.75;
+    x.beginPath();x.moveTo(p1.x,p1.y);x.lineTo(p2.x,p2.y);
+    x.strokeStyle=fh?`rgba(255,80,80,${op})`:`rgba(255,140,140,${op*.8})`;
+    x.lineWidth=fh?(op>.5?3:1):(op>.5?1.5:.8);
+    x.setLineDash(fh&&op>.5?[]:[4,3]);x.stroke();x.setLineDash([]);
+  }
+  x.beginPath();x.arc(bh.x,bh.y,10,0,Math.PI*2);
+  x.strokeStyle='#f5c518';x.lineWidth=2;x.stroke();
+  allies.forEach(a=>{
+    x.beginPath();x.arc(a.x,a.y,6,0,Math.PI*2);
+    const g=x.createRadialGradient(a.x-1,a.y-1,0,a.x,a.y,6);
+    g.addColorStop(0,'#80a8ff');g.addColorStop(1,'#2d6de8');
+    x.fillStyle=g;x.fill();x.strokeStyle='#80a8ff';x.lineWidth=1;x.stroke();
+  });
+  defs.forEach(d=>{
+    x.beginPath();x.arc(d.x,d.y,5,0,Math.PI*2);
+    const g=x.createRadialGradient(d.x-1,d.y-1,0,d.x,d.y,5);
+    g.addColorStop(0,'#ff8895');g.addColorStop(1,'#e8334a');
+    x.fillStyle=g;x.fill();x.strokeStyle='#ff9999';x.lineWidth=1;x.stroke();
+  });
+})();
+</script>
+</body>
+</html>
