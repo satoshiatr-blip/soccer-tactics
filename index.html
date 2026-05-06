@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+<title>⚽ 作戦ボード</title>
+<style>
+/* ── THEME: DEEP OCEAN (default) ── */
+:root{
+  --bg:#060d1a;--sur:#0a1628;--sur2:#0f2040;
+  --bd:#1a3a6a;--bd2:#1e4a80;
+  --txt:#e0f0ff;--txt2:#4a80b8;
+  --acc:#00d4ff;--red:#ff2244;--blue:#1a6fff;
+  --grn:#27c96e;--yel:#f5c518;--pur:#a855f7;
+  --logo-a:#00d4ff;--logo-b:#f5c518;
+  --fs1:#1a3d1a;--fs2:#163416;--fline:rgba(0,212,255,0.7);
+  --wb-bg:#060d1a;
+  --theme-id:ocean;
+}
+/* ── THEME: FIELD GREEN ── */
+[data-theme="field"]{
+  --bg:#071207;--sur:#0d1e0d;--sur2:#142a14;
+  --bd:#1e4020;--bd2:#2a5828;
+  --txt:#d4f0d4;--txt2:#3a7040;
+  --acc:#4ade80;--red:#ff4422;--blue:#2288ff;
+  --grn:#4ade80;--yel:#fde047;--pur:#c084fc;
+  --logo-a:#4ade80;--logo-b:#fde047;
+  --fs1:#1a4020;--fs2:#153618;--fline:rgba(255,255,255,0.75);
+  --wb-bg:#071207;
+}
+/* ── THEME: TACTICAL WHITE ── */
+[data-theme="white"]{
+  --bg:#f0f4f8;--sur:#ffffff;--sur2:#eef2f8;
+  --bd:#d0dae8;--bd2:#b8c8e0;
+  --txt:#0f172a;--txt2:#64748b;
+  --acc:#1e40af;--red:#dc2626;--blue:#1d4ed8;
+  --grn:#16a34a;--yel:#d97706;--pur:#7c3aed;
+  --logo-a:#1e40af;--logo-b:#d97706;
+  --fs1:#f8faf8;--fs2:#eff5ef;--fline:rgba(0,0,0,0.75);
+  --wb-bg:#f0f4f8;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;height:100dvh;overflow:hidden;}
+input,textarea,select{font-size:16px!important;transform-origin:left top;}
+body{background:var(--bg);display:flex;flex-direction:column;font-family:-apple-system,'Hiragino Sans',sans-serif;touch-action:none;user-select:none;color:var(--txt);height:100dvh;max-height:100dvh;}
+
+/* ── TOP BAR ── */
+#topbar{display:flex;flex-direction:column;padding:4px 8px;flex-shrink:0;background:var(--sur);border-bottom:1px solid var(--bd);gap:3px;}
+.tb-row1{display:flex;align-items:center;gap:6px;width:100%;}
+.tb-row2{display:flex;align-items:center;gap:5px;width:100%;}
+.logo{font-size:13px;font-weight:900;color:var(--logo-a,var(--acc));white-space:nowrap;}
+.logo b{color:var(--logo-b,var(--yel));}
+.mode-grp{display:flex;gap:1px;background:var(--bg);border:1px solid var(--bd);border-radius:14px;padding:2px;}
+.mp{padding:2px 7px;border-radius:10px;border:none;font-size:10px;font-weight:700;cursor:pointer;background:transparent;color:var(--txt2);font-family:inherit;}
+.mp.on{background:var(--acc);color:#fff;}
+.atk-grp{display:flex;gap:1px;background:var(--bg);border:1px solid var(--bd);border-radius:14px;padding:2px;margin-left:auto;}
+.ap{padding:2px 7px;border-radius:10px;border:none;font-size:10px;font-weight:700;cursor:pointer;background:transparent;color:var(--txt2);font-family:inherit;}
+.ap.red{background:var(--red);color:#fff;}
+.ap.blue{background:var(--blue);color:#fff;}
+.iBtn{width:26px;height:26px;border-radius:50%;border:none;background:var(--sur2);color:var(--txt2);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.iBtn:active{opacity:0.7;}
+.field-toggle{display:flex;gap:1px;background:var(--bg);border:1px solid var(--bd);border-radius:14px;padding:2px;}
+.ftp{width:26px;height:24px;border-radius:10px;border:none;font-size:13px;cursor:pointer;background:transparent;line-height:1;display:flex;align-items:center;justify-content:center;}
+.ftp.on{background:var(--sur2);}
+canvas,#canvas,#cWrap{transition:none!important;}
+.ftp:active{opacity:0.7;}
+
+/* ── CANVAS ── */
+#cWrap{flex:1;width:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;background:var(--bg);}
+#canvas{display:block;touch-action:none;}
+.ind{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;padding:3px 10px;border-radius:16px;pointer-events:none;display:none;white-space:nowrap;}
+#modeInd{background:rgba(245,197,24,0.15);border:1px solid var(--yel);color:var(--yel);}
+#zoneInd{background:rgba(39,201,110,0.12);border:1px solid var(--grn);color:var(--grn);bottom:26px;}
+#dirInd{background:rgba(168,85,247,0.12);border:1px solid var(--pur);color:var(--pur);bottom:44px;}
+#memoOv{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.4));padding:8px 10px 4px;display:none;pointer-events:none;}
+#memoTx{color:var(--txt);font-size:10px;line-height:1.5;white-space:pre-wrap;}
+
+/* ── BOTTOM BAR ── */
+#bbar{flex-shrink:0;background:var(--sur);border-top:1px solid var(--bd);padding:3px 5px 3px;display:flex;flex-direction:column;gap:2px;}
+
+/* ── TOOL GROUP (ツリー親) ── */
+.tg{display:flex;align-items:center;gap:2px;flex-wrap:nowrap;overflow-x:auto;}
+.tg::-webkit-scrollbar{display:none;}
+
+/* 親ボタン（グループ見出し） */
+.tgp{
+  display:flex;align-items:center;gap:3px;
+  padding:3px 7px;border-radius:6px;border:1px solid var(--bd);
+  background:var(--sur2);color:var(--txt2);cursor:pointer;
+  font-size:9px;font-weight:700;white-space:nowrap;flex-shrink:0;
+  min-height:32px;font-family:inherit;
+}
+.tgp .pi{font-size:15px;}
+.tgp.on{background:rgba(61,142,240,0.15);border-color:var(--acc);color:var(--acc);}
+.tgp.yw{background:rgba(245,197,24,0.1);border-color:var(--yel);color:var(--yel);}
+.tgp.gn{background:rgba(39,201,110,0.1);border-color:var(--grn);color:var(--grn);}
+.tgp.pu{background:rgba(168,85,247,0.1);border-color:var(--pur);color:var(--pur);}
+.tgp.rd{background:rgba(232,51,74,0.1);border-color:var(--red);color:var(--red);}
+.tgp:active{opacity:0.7;}
+@keyframes rp{0%,100%{opacity:1}50%{opacity:0.45}}
+.rec{animation:rp 1s infinite;}
+
+/* 子ボタン */
+.tgc{display:none;align-items:center;gap:2px;}
+.tgc.open{display:flex;}
+.tb{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  padding:2px 5px;border-radius:5px;border:1px solid var(--bd);
+  background:var(--sur2);color:var(--txt2);cursor:pointer;
+  min-width:36px;min-height:36px;height:36px;flex-shrink:0;font-family:inherit;
+}
+.tb .i{font-size:15px;line-height:1;}
+.tb .l{font-size:7px;font-weight:700;white-space:nowrap;}
+.tb:active{opacity:0.7;}
+.tb.on{background:rgba(61,142,240,0.15);border-color:var(--acc);color:var(--acc);}
+.tb.yw{background:rgba(245,197,24,0.1);border-color:var(--yel);color:var(--yel);}
+.tb.gn{background:rgba(39,201,110,0.1);border-color:var(--grn);color:var(--grn);}
+.tb.rd{color:#f85149;}
+
+/* form chip */
+.fc{padding:2px 8px;border-radius:10px;border:1px solid var(--bd);background:var(--sur2);color:var(--txt2);font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit;min-height:26px;}
+.fc.on{background:rgba(61,142,240,0.15);border-color:var(--acc);color:var(--acc);}
+.fc:active{opacity:0.7;}
+
+/* pattern tab */
+.pt{padding:2px 8px;border-radius:10px;border:1px solid var(--bd);background:var(--sur2);color:var(--txt2);font-size:10px;font-weight:700;cursor:pointer;flex-shrink:0;font-family:inherit;min-height:26px;}
+.pt.on{background:rgba(61,142,240,0.18);border-color:var(--acc);color:var(--acc);}
+.pt.add{color:var(--grn);border-color:var(--grn);}
+.pt:active{opacity:0.7;}
+.vd{width:1px;height:20px;background:var(--bd);margin:0 1px;flex-shrink:0;}
+.arr{font-size:8px;opacity:0.5;}
+
+/* ── MODALS ── */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,0.65);display:none;align-items:center;justify-content:center;z-index:200;}
+.mo.open{display:flex;}
+.md{background:var(--sur);border:1px solid var(--bd2);border-radius:14px;padding:16px;width:min(340px,92vw);display:flex;flex-direction:column;gap:11px;box-shadow:0 20px 60px rgba(0,0,0,0.6);}
+.md h3{font-size:14px;font-weight:900;color:var(--acc);}
+.md input,.md textarea{background:var(--bg);border:1px solid var(--bd2);border-radius:6px;color:var(--txt);padding:8px 10px;font-size:16px;width:100%;font-family:inherit;outline:none;}
+.md textarea{resize:vertical;min-height:64px;}
+.mbtns{display:flex;gap:8px;justify-content:flex-end;}
+.mbtn{padding:7px 15px;border-radius:6px;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.mbtn.p{background:var(--acc);color:#fff;}
+.mbtn.g{background:var(--sur2);color:var(--txt2);border:1px solid var(--bd);}
+.mbtn:active{opacity:0.8;}
+
+/* help */
+#helpMo .md{width:min(480px,95vw);max-height:88vh;overflow-y:auto;gap:10px;}
+.hHero{background:linear-gradient(135deg,#0d2d5c,#1a4080);border-radius:8px;padding:12px;text-align:center;}
+.hHero .hIco{font-size:36px;}
+.hHero h2{font-size:18px;font-weight:900;color:#fff;margin-top:4px;letter-spacing:1px;}
+.hHero p{font-size:10px;color:#7aa8d8;margin-top:2px;}
+
+/* Q&A accordion */
+.qa-section{display:flex;flex-direction:column;gap:0;}
+.qa-title{font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--acc);padding:6px 0 4px;border-bottom:1px solid var(--bd);margin-bottom:4px;}
+.qa{border:1px solid var(--bd);border-radius:7px;overflow:hidden;margin-bottom:3px;}
+.qa-q{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;cursor:pointer;font-size:11px;font-weight:700;color:var(--txt);background:var(--sur2);gap:6px;}
+.qa-q .qico{font-size:14px;flex-shrink:0;}
+.qa-q .qarr{font-size:10px;color:var(--txt2);transition:transform 0.2s;flex-shrink:0;}
+.qa.open .qarr{transform:rotate(180deg);}
+.qa-a{display:none;padding:8px 10px;font-size:11px;color:var(--txt2);line-height:1.7;border-top:1px solid var(--bd);}
+.qa.open .qa-a{display:block;}
+.qa-a strong{color:var(--txt);font-weight:700;}
+.qa-a .tip{background:rgba(245,197,24,0.08);border-left:2px solid var(--yel);padding:4px 8px;margin-top:6px;border-radius:0 4px 4px 0;font-size:10px;color:var(--yel);}
+.qa-a .step{display:flex;flex-direction:column;gap:3px;margin-top:4px;}
+.qa-a .step li{list-style:none;padding:2px 0;font-size:10px;}
+.qa-a .step li::before{content:'→ ';}
+
+.hTip{background:rgba(245,197,24,0.07);border:1px solid rgba(245,197,24,0.2);border-radius:6px;padding:8px 10px;font-size:10px;color:var(--yel);line-height:1.6;}
+
+/* setplay / dir picker */
+.spBtn{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;background:var(--sur2);border:1px solid var(--bd);color:var(--txt);cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;text-align:left;width:100%;}
+.spBtn:active{opacity:0.7;}
+.spIco{font-size:16px;}
+.spSub{font-size:9px;color:var(--txt2);margin-top:1px;}
+.dpBtn{padding:5px;border-radius:5px;border:1px solid var(--bd);background:var(--sur2);color:var(--txt);font-size:15px;cursor:pointer;font-family:inherit;}
+.dpBtn:active,.dpBtn.sel{background:var(--acc);border-color:var(--acc);}
+.dpNone{font-size:8px;color:var(--txt2);}
+#qr-canvas{border:4px solid #fff;border-radius:4px;}
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(30,45,69,0.95);color:var(--txt);font-size:12px;font-weight:700;padding:8px 16px;border-radius:20px;border:1px solid var(--bd2);pointer-events:none;opacity:0;transition:opacity 0.3s;white-space:nowrap;z-index:999;}
+#toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="toast"></div>
+<div id="topbar">
+  <!-- 1行目: ロゴ + 人数 -->
+  <div class="tb-row1">
+    <div class="logo">⚽ TACTICS<b>BOARD</b></div>
+    <div class="mode-grp">
+      <button class="mp" id="btnMode3"  onclick="setMode(3)">3人制</button>
+      <button class="mp" id="btnMode5"  onclick="setMode(5)">5人制</button>
+      <button class="mp on" id="btnMode8" onclick="setMode(8)">8人制</button>
+      <button class="mp" id="btnMode11" onclick="setMode(11)">11人制</button>
+    </div>
+  </div>
+  <!-- 2行目: 攻守 + コートチェンジ + テーマ + ヘルプ -->
+  <div class="tb-row2">
+    <div class="atk-grp">
+      <button class="ap"     id="btnTeamRed"  onclick="setAttackTeam('red')">🔴敵</button>
+      <button class="ap blue" id="btnTeamBlue" onclick="setAttackTeam('blue')">🔵味方</button>
+    </div>
+    <button class="iBtn" id="btnFlip" onclick="confirmFlip()" title="コートチェンジ">↕️</button>
+    <div class="field-toggle">
+      <button class="ftp on" id="thOcean" onclick="setTheme('ocean')">🌊</button>
+      <button class="ftp"    id="thField" onclick="setTheme('field')">🟢</button>
+      <button class="ftp"    id="thWhite" onclick="setTheme('white')">☀️</button>
+    </div>
+    <button class="iBtn" onclick="openHelp()">❓</button>
+  </div>
+</div>
+
+<!-- CANVAS -->
+<div id="cWrap">
+  <canvas id="canvas"></canvas>
+  <div id="modeInd" class="ind">✏️ 矢印モード</div>
+  <div id="zoneInd" class="ind">⬜ ゾーン描画モード</div>
+  <div id="dirInd"  class="ind">🧭 向き設定モード</div>
+  <div id="memoOv"><div id="memoTx"></div></div>
+</div>
+
+<!-- BOTTOM BAR: ツリー形式 -->
+<div id="bbar">
+
+  <!-- ROW 1: 陣形 ＋ 表示 ＋ 描画 -->
+  <div class="tg">
+
+    <!-- 🏟 陣形グループ -->
+    <button class="tgp" id="tgFormation" onclick="toggleGroup('formation')">
+      <span class="pi">🏟</span>陣形<span class="arr">▾</span>
+    </button>
+    <div class="tgc" id="grp-formation">
+      <div id="formRow" style="display:flex;gap:2px;flex-shrink:0;"></div>
+      <div class="vd"></div>
+      <button class="tb" onclick="openSetPlay()"><span class="i">⚡</span><span class="l">セットプレー</span></button>
+      <button class="tb" onclick="flipTeams()"><span class="i">🔄</span><span class="l">反転</span></button>
+    </div>
+
+    <div class="vd"></div>
+
+    <!-- 👁 表示グループ -->
+    <button class="tgp" id="tgDisplay" onclick="toggleGroup('display')">
+      <span class="pi">👁</span>表示<span class="arr">▾</span>
+    </button>
+    <div class="tgc" id="grp-display">
+      <button class="tb on" id="btnPass" onclick="togglePass()"><span class="i">〰️</span><span class="l">パスライン</span></button>
+      <button class="tb" id="btnHeat" onclick="toggleHeat()"><span class="i">🌡️</span><span class="l">スペース</span></button>
+      <div class="vd"></div>
+      <button class="tb" id="btnHalfAtk" onclick="setHalfView('atk')"><span class="i">⚔️</span><span class="l">攻撃半面</span></button>
+      <button class="tb" id="btnHalfDef" onclick="setHalfView('def')"><span class="i">🛡️</span><span class="l">守備半面</span></button>
+      <button class="tb" id="btnHalfFull" onclick="setHalfView('full')"><span class="i">🔲</span><span class="l">全面</span></button>
+    </div>
+
+    <div class="vd"></div>
+
+    <!-- ✏️ 描画グループ -->
+    <button class="tgp" id="tgDraw" onclick="toggleGroup('draw')">
+      <span class="pi">✏️</span>描画<span class="arr">▾</span>
+    </button>
+    <div class="tgc" id="grp-draw">
+      <button class="tb" id="btnArrow" onclick="toggleArrow()"><span class="i">✏️</span><span class="l">矢印</span></button>
+      <button class="tb" id="btnZone"  onclick="toggleZoneMode()"><span class="i">⬜</span><span class="l">ゾーン</span></button>
+      <button class="tb" id="btnDir"   onclick="toggleDirMode()"><span class="i">🧭</span><span class="l">向き</span></button>
+      <div class="vd"></div>
+      <button class="tb" onclick="undoArrow()"><span class="i">↩️</span><span class="l">戻す</span></button>
+      <button class="tb rd" onclick="clearAll()"><span class="i">🗑️</span><span class="l">全消去</span></button>
+    </div>
+
+  </div>
+
+  <!-- ROW 2: 作戦 ＋ 記録 ＋ 共有 -->
+  <div class="tg">
+
+    <!-- 🗂 作戦グループ -->
+    <button class="tgp" id="tgPat" onclick="toggleGroup('pat')">
+      <span class="pi">🗂️</span>作戦<span class="arr">▾</span>
+    </button>
+    <div class="tgc" id="grp-pat">
+      <div id="patTabs" style="display:flex;gap:2px;flex-shrink:0;"></div>
+      <div class="vd"></div>
+      <button class="tb" onclick="openMemo()"><span class="i">📝</span><span class="l">メモ</span></button>
+    </div>
+
+    <div class="vd"></div>
+
+    <!-- 🎬 記録グループ -->
+    <button class="tgp" id="tgAnim" onclick="toggleGroup('anim')">
+      <span class="pi">🎬</span>記録<span class="arr">▾</span>
+    </button>
+    <div class="tgc" id="grp-anim">
+      <button class="tb" id="btnRec"  onclick="toggleRecord()"><span class="i">⏺</span><span class="l">記録</span></button>
+      <button class="tb" id="btnPlay" onclick="playAnim()" style="display:none"><span class="i">▶️</span><span class="l">再生</span></button>
+    </div>
+
+    <div class="vd"></div>
+
+    <!-- 📤 共有グループ -->
+    <button class="tgp" id="tgShare" onclick="toggleGroup('share')">
+      <span class="pi">📤</span>共有<span class="arr">▾</span>
+    </button>
+    <div class="tgc" id="grp-share">
+      <button class="tb" onclick="showQR()"><span class="i">📱</span><span class="l">QR共有</span></button>
+      <button class="tb" onclick="saveImg()"><span class="i">💾</span><span class="l">保存</span></button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== MODALS ===== -->
+
+<!-- Help / Q&A -->
+<div class="mo" id="helpMo">
+  <div class="md">
+    <div class="hHero"><div class="hIco">⚽</div><h2>TACTICS BOARD</h2><p>タップしてQ&Aを開いてください</p></div>
+
+    <div class="qa-section">
+      <div class="qa-title">🎮 基本操作</div>
+
+      <div class="qa" onclick="toggleQA(this)">
+        <div class="qa-q"><span class="qico">👆</span><span>選手・ボールの動かし方</span><span class="qarr">▾</span></div>
+        <div class="qa-a">選手やボール（黄色）を<strong>ドラッグ</strong>して好きな場所に移動できます。<br>指を乗せたまま動かすだけでOKです。</div>
+      </div>
+
+      <div class="qa" onclick="toggleQA(this)">
+        <div class="qa-q"><span class="qico">✋</span><span>背番号・名前・向きの変更</span><span class="qarr">▾</span></div>
+        <div class="qa-a">選手を<strong>長押し（0.6秒）</strong>すると編集画面が開きます。<br>
+          <div class="step"><li>背番号欄に好きな番号を入力</li><li>名前欄に選手名を入力（任意）</li><li>3×3グリッドで向きを選択</li><li>「決定」で保存</li></div>
+          <div class="tip">💡 向きをつけると選手アイコンから矢印が伸びて守備の向きが一目でわかります</div>
+        </div>
+      </div>
+
+      <div class="qa" onclick="toggleQA(this)">
+        <div class="qa-q"><span class="qico">🔄</span><span>攻守の切り替え・上下反転</span><span class="qarr">▾</span></div>
+        <div class="qa-a">上部の<strong>🔴赤／🔵青ボタン</strong>でどちらが攻撃側かを切り替えます。攻撃側のチームにパスラインが表示されます。<br><br><strong>🔄反転ボタン</strong>を押すと赤と青が上下入れ替わります。ハーフタイム後のコートチェンジ後に使いましょう。</div>
+      </div>
+    </div>
+
+    <div class="qa-section">
+      <div class="qa-title">👁 表示ツール</div>
+
+      <div class="qa" onclick="toggleQA(this)">
+        <div class="qa-q"><span class="qico">〰️</span><span>パスラインはいつ使う？</span><span class="qarr">▾</span></div>
+        <div class="qa-a"><strong>攻撃側の全選手間にパスコースを自動表示</strong>します。<br>
+          <div class="step"><li><strong>太い実線</strong>＝守備がいないオープンなコース</li><li><strong>細い点線</strong>＝守備にブロックされたコース</li><li><strong>黄色リング</strong>＝ボール保持者</li></div>
+          <div class="tip">💡 「どこにパスが出せるか」をミーティングで視覚的に説明するのに最適です</div>
+        </div>
+      </div>
+
+      <div class="qa" onclick="toggleQA(this)">
+        <div class="qa-q"><span class="qico">🌡️</span><span>スペースマップはいつ使う？</span><span class="qarr">▾</span></div>
+        <div class="qa-a">守備の手薄なエリアを色で表示します。<br>
+          <div class="step"><li>🟢 <strong>黄緑</strong>＝スペース大（攻めどころ！）</li><li>🟡 <strong>黄</strong>＝やや空いている</li><li>🔵 <strong>青</strong>＝やや守備あり</li><li>🟦 <strong>紺</strong>＝守備が密集</li></div>
+          <div class="tip">💡 「ここが空いてるから走り込め！」と指示するのに使いましょう。選手を動かすと色がリアルタイムで変わります</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-section">
+      <div class="qa-title">✏️ 描画ツール</div>
+
+      <div class="qa" onclick="toggleQA(this)">
+        <div class="qa-q"><span class="qico">✏️</span><span>矢印はいつ使う？</span><span class="qarr">▾</span></div>
+        <div class="qa-a">「矢印」ボタンをONにして<strong>フィールド上をドラッグ</strong>すると矢印を描けます。<br>
+          <div class="step"><li>選手の動きのルートを描く</li><li>ドリブルの方向を示す</li><li>連携の動きを説明する</li></div>
+          「戻す」で1本ずつ消せます。攻撃中はオレンジ、守備中は水色の矢印が描かれます。
+        </div>
+      </div>
+
+      <div class="qa" onclick="toggleQA(this)">
+        <div class="qa-q"><span class="qico">⬜</span><span>ゾーンはいつ使う？</span><span class="qarr">▾</span></div>
+        <div class="qa-a">「ゾーン」ボタンON後、<strong>フィールドをドラッグ</strong>すると色付きの長方形エリアを描けます。<br>
+          <div class="step"><li>プレスを開始するエリアを囲む</li><li>守備ブロックのゾーンを示す</li><li>サイド攻撃の狙いエリアを示す</li><li>選手ごとの守備担当エリアを色分け</li></div>
+          <div class="tip">💡 スペースマップ🌡️で空いているエリアを確認 → ゾーンで囲む → 矢印で動きを描く、という流れが効果的です</div>
+        </div>
+      </div>
+
+      <div class="qa" onclick="toggleQA(this)">
+        <div class="qa-q"><span class="qico">🧭</span><span>向き設定はいつ使う？</span><span class="qarr">▾</span></div>
+        <div class="qa-a">「向き」ボタンON後、<strong>選手をタップ</strong>すると向き設定画面が開きます。<br>
+          <div class="step"><li>守備時に「どっちを向いて守るか」を指示</li><li>マークする相手の方向を示す</li><li>プレスの方向を統一する</li></div>
+          設定した向きは選手アイコンから矢印で表示されます。
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-section">
+      <div class="qa-title">🗂️ 作戦・共有</div>
+
+      <div class="qa" onclick="toggleQA(this)">
+        <div class="qa-q"><span class="qico">🗂️</span><span>作戦パターンA/B/Cとは？</span><span class="qarr">▾</span></div>
+        <div class="qa-a">最大6つの作戦配置を<strong>タブで保存・切り替え</strong>できます。<br>
+          <div class="step"><li>A＝通常の攻撃配置</li><li>B＝守備時の配置</li><li>C＝セットプレー時の配置</li></div>
+          「＋」ボタンで追加。タブを切り替えるだけで配置がまるごと変わります。
+        </div>
+      </div>
+
+      <div class="qa" onclick="toggleQA(this)">
+        <div class="qa-q"><span class="qico">🎬</span><span>記録・再生はどう使う？</span><span class="qarr">▾</span></div>
+        <div class="qa-a">選手の動きをアニメーションで記録・再生できます。<br>
+          <div class="step"><li>「⏺記録」を押して記録開始（点滅）</li><li>選手やボールをドラッグして動かす</li><li>「⏹停止」を押して記録終了</li><li>「▶️再生」で動きをアニメーション再生</li></div>
+          <div class="tip">💡 試合前のミーティングで「こう動いてほしい」というイメージを動かして見せられます</div>
+        </div>
+      </div>
+
+      <div class="qa" onclick="toggleQA(this)">
+        <div class="qa-q"><span class="qico">📱</span><span>QR共有・保存の使い方</span><span class="qarr">▾</span></div>
+        <div class="qa-a"><strong>QR共有：</strong>QRコードを表示して選手のスマホでスキャンすると、同じ配置が開きます。<br><br>
+          <strong>💾保存：</strong>iPhoneでは共有シートから「写真に保存」を選ぶとカメラロールに保存。LINEで送れます。
+          <div class="tip">💡 Safariで「ホーム画面に追加」するとアプリのように起動できます</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hTip">💡 各ツールはグループごとにまとまっています。グループ名をタップすると展開します。</div>
+    <div class="mbtns"><button class="mbtn p" onclick="closeHelp()">さっそく使う ⚽</button></div>
+  </div>
+</div>
+
+<!-- Player edit -->
+<div class="mo" id="nameMo">
+  <div class="md">
+    <h3>✏️ 選手を編集</h3>
+    <div style="display:flex;gap:8px;">
+      <div style="flex:1;"><div style="font-size:9px;color:var(--txt2);margin-bottom:3px;font-weight:700;">背番号</div><input id="numIn" type="text" maxlength="3" placeholder="例: 10" style="text-align:center;"></div>
+      <div style="flex:2;"><div style="font-size:9px;color:var(--txt2);margin-bottom:3px;font-weight:700;">名前（任意）</div><input id="nameIn" type="text" maxlength="6" placeholder="例: 田中"></div>
+    </div>
+    <div>
+      <div style="font-size:9px;color:var(--txt2);margin-bottom:5px;font-weight:700;">向き（タップで選択）</div>
+      <div id="dirPicker" style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;max-width:150px;margin:0 auto;">
+        <button class="dpBtn" onclick="pickDir('↖')">↖</button><button class="dpBtn" onclick="pickDir('↑')">↑</button><button class="dpBtn" onclick="pickDir('↗')">↗</button>
+        <button class="dpBtn" onclick="pickDir('←')">←</button><button class="dpBtn dpNone" onclick="pickDir('')">なし</button><button class="dpBtn" onclick="pickDir('→')">→</button>
+        <button class="dpBtn" onclick="pickDir('↙')">↙</button><button class="dpBtn" onclick="pickDir('↓')">↓</button><button class="dpBtn" onclick="pickDir('↘')">↘</button>
+      </div>
+    </div>
+    <div class="mbtns">
+      <button class="mbtn g" onclick="closeNameMo()">キャンセル</button>
+      <button class="mbtn p" onclick="confirmName()">決定</button>
+    </div>
+  </div>
+</div>
+
+<!-- Memo -->
+<div class="mo" id="memoMo">
+  <div class="md">
+    <h3>📝 戦術メモ</h3>
+    <textarea id="memoIn" placeholder="例: 前からプレス&#10;縦に速く&#10;サイドを使う"></textarea>
+    <div class="mbtns">
+      <button class="mbtn g" onclick="closeMemo()">キャンセル</button>
+      <button class="mbtn p" onclick="confirmMemo()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- QR -->
+<div class="mo" id="qrMo">
+  <div class="md" style="align-items:center;">
+    <h3>📱 QRコードで共有</h3>
+    <canvas id="qr-canvas" width="180" height="180"></canvas>
+    <p style="color:var(--txt2);font-size:10px;text-align:center;line-height:1.6;">スキャンすると同じ配置が開きます</p>
+    <button class="mbtn g" onclick="closeQR()">閉じる</button>
+  </div>
+</div>
+
+<!-- SetPlay -->
+<div class="mo" id="spMo">
+  <div class="md">
+    <h3>⚡ セットプレー配置</h3>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <button class="spBtn" onclick="applySetPlay('ck-right')"><span class="spIco">🚩</span><div><div>コーナーキック（右）</div><div class="spSub">右コーナーからの攻撃配置</div></div></button>
+      <button class="spBtn" onclick="applySetPlay('ck-left')"><span class="spIco">🚩</span><div><div>コーナーキック（左）</div><div class="spSub">左コーナーからの攻撃配置</div></div></button>
+      <button class="spBtn" onclick="applySetPlay('fk-mid')"><span class="spIco">⚡</span><div><div>フリーキック（中央）</div><div class="spSub">ゴール正面からの直接FK</div></div></button>
+      <button class="spBtn" onclick="applySetPlay('fk-side')"><span class="spIco">⚡</span><div><div>フリーキック（サイド）</div><div class="spSub">サイドからのクロス配置</div></div></button>
+    </div>
+    <div class="mbtns"><button class="mbtn g" onclick="closeSP()">閉じる</button></div>
+  </div>
+
+</div>
+
+<script>
+const canvas=document.getElementById('canvas');
+const ctx=canvas.getContext('2d');
+const wrap=document.getElementById('cWrap');
+
+let sX,sY,attackTeam='blue',arrowMode=false,showPass=true,showHeat=false,currentTheme='ocean';
+let halfView='full'; // 'full' | 'atk' | 'def'
+let arrows=[],curArrow=null,dragging=null,dOX=0,dOY=0;
+let mode=8,editP=null,memo='',curForm='4-4-2',curPat=0;
+let isRec=false,recFrames=[],isPlay=false,playTmr=null;
+let zoneMode=false,zones=[],curZone=null;
+const ZONE_COLORS=['rgba(255,100,100,0.25)','rgba(100,180,255,0.25)','rgba(100,220,100,0.25)','rgba(255,220,0,0.22)','rgba(200,100,255,0.22)'];
+let zoneColorIdx=0;
+let dirMode=false,selDirArrow='';
+let tapTmr=null;
+const FW=500,FH=700;
+
+let patterns=[
+  {name:'A',players:null,arrows:[],zones:[],ball:null,memo:''},
+  {name:'B',players:null,arrows:[],zones:[],ball:null,memo:''},
+  {name:'C',players:null,arrows:[],zones:[],ball:null,memo:''},
+];
+
+const MCFG={
+  3: {f:['1-1','2-0','0-2'],         d:'1-1'},
+  5: {f:['2-2','1-2-1','2-1-1','1-1-2'], d:'2-2'},
+  8: {f:['3-3-1','3-2-2','2-3-2'],   d:'3-3-1'},
+  11:{f:['4-4-2','4-3-3','3-5-2','4-2-3-1'], d:'4-4-2'},
+};
+
+const FP={
+  // ===== 3人制 =====
+  '1-1':{
+    b:[{x:250,y:645},{x:190,y:520},{x:310,y:520}],
+    r:[{x:250,y:55}, {x:190,y:180},{x:310,y:180}]
+  },
+  '2-0':{
+    b:[{x:250,y:645},{x:155,y:510},{x:345,y:510}],
+    r:[{x:250,y:55}, {x:155,y:190},{x:345,y:190}]
+  },
+  '0-2':{
+    b:[{x:250,y:645},{x:165,y:415},{x:335,y:415}],
+    r:[{x:250,y:55}, {x:165,y:285},{x:335,y:285}]
+  },
+
+  // ===== 5人制 =====
+  '2-2':{
+    b:[{x:250,y:645},{x:155,y:555},{x:345,y:555},{x:155,y:430},{x:345,y:430}],
+    r:[{x:250,y:55}, {x:155,y:145},{x:345,y:145},{x:155,y:270},{x:345,y:270}]
+  },
+  '1-2-1':{
+    b:[{x:250,y:645},{x:250,y:550},{x:155,y:445},{x:345,y:445},{x:250,y:365}],
+    r:[{x:250,y:55}, {x:250,y:150},{x:155,y:255},{x:345,y:255},{x:250,y:335}]
+  },
+  '2-1-1':{
+    b:[{x:250,y:645},{x:155,y:555},{x:345,y:555},{x:250,y:450},{x:250,y:365}],
+    r:[{x:250,y:55}, {x:155,y:145},{x:345,y:145},{x:250,y:250},{x:250,y:335}]
+  },
+  '1-1-2':{
+    b:[{x:250,y:645},{x:250,y:555},{x:250,y:455},{x:155,y:365},{x:345,y:365}],
+    r:[{x:250,y:55}, {x:250,y:145},{x:250,y:245},{x:155,y:335},{x:345,y:335}]
+  },
+
+  // ===== 8人制 =====
+  '3-3-1':{
+    b:[{x:250,y:645},{x:115,y:565},{x:250,y:560},{x:385,y:565},
+       {x:95,y:455},{x:250,y:448},{x:405,y:455},{x:250,y:365}],
+    r:[{x:250,y:55}, {x:115,y:135},{x:250,y:140},{x:385,y:135},
+       {x:95,y:245},{x:250,y:252},{x:405,y:245},{x:250,y:335}]
+  },
+  '3-2-2':{
+    b:[{x:250,y:645},{x:115,y:565},{x:250,y:560},{x:385,y:565},
+       {x:170,y:455},{x:330,y:455},{x:165,y:365},{x:335,y:365}],
+    r:[{x:250,y:55}, {x:115,y:135},{x:250,y:140},{x:385,y:135},
+       {x:170,y:245},{x:330,y:245},{x:165,y:335},{x:335,y:335}]
+  },
+  '2-3-2':{
+    b:[{x:250,y:645},{x:165,y:565},{x:335,y:565},
+       {x:100,y:455},{x:250,y:448},{x:400,y:455},
+       {x:165,y:365},{x:335,y:365}],
+    r:[{x:250,y:55}, {x:165,y:135},{x:335,y:135},
+       {x:100,y:245},{x:250,y:252},{x:400,y:245},
+       {x:165,y:335},{x:335,y:335}]
+  },
+
+  // ===== 11人制 =====
+  '4-4-2':{
+    b:[{x:250,y:645},{x:65,y:558},{x:185,y:558},{x:315,y:558},{x:435,y:558},
+       {x:65,y:450},{x:180,y:440},{x:320,y:440},{x:435,y:450},
+       {x:175,y:368},{x:325,y:368}],
+    r:[{x:250,y:55}, {x:65,y:142},{x:185,y:142},{x:315,y:142},{x:435,y:142},
+       {x:65,y:250},{x:180,y:260},{x:320,y:260},{x:435,y:250},
+       {x:175,y:332},{x:325,y:332}]
+  },
+  '4-3-3':{
+    b:[{x:250,y:645},{x:65,y:558},{x:185,y:558},{x:315,y:558},{x:435,y:558},
+       {x:130,y:448},{x:250,y:440},{x:370,y:448},
+       {x:85,y:368},{x:250,y:360},{x:415,y:368}],
+    r:[{x:250,y:55}, {x:65,y:142},{x:185,y:142},{x:315,y:142},{x:435,y:142},
+       {x:130,y:252},{x:250,y:260},{x:370,y:252},
+       {x:85,y:332},{x:250,y:340},{x:415,y:332}]
+  },
+  '3-5-2':{
+    b:[{x:250,y:645},{x:125,y:560},{x:250,y:555},{x:375,y:560},
+       {x:55,y:455},{x:158,y:445},{x:250,y:440},{x:342,y:445},{x:445,y:455},
+       {x:170,y:368},{x:330,y:368}],
+    r:[{x:250,y:55}, {x:125,y:140},{x:250,y:145},{x:375,y:140},
+       {x:55,y:245},{x:158,y:255},{x:250,y:260},{x:342,y:255},{x:445,y:245},
+       {x:170,y:332},{x:330,y:332}]
+  },
+  '4-2-3-1':{
+    b:[{x:250,y:645},{x:65,y:558},{x:185,y:558},{x:315,y:558},{x:435,y:558},
+       {x:168,y:458},{x:332,y:458},
+       {x:80,y:368},{x:250,y:360},{x:420,y:368},
+       {x:250,y:378}],
+    r:[{x:250,y:55}, {x:65,y:142},{x:185,y:142},{x:315,y:142},{x:435,y:142},
+       {x:168,y:242},{x:332,y:242},
+       {x:80,y:332},{x:250,y:340},{x:420,y:332},
+       {x:250,y:322}]
+  },
+};
+
+const SP={
+  'ck-right':{ball:{x:490,y:30},b:[{x:250,y:660},{x:130,y:580},{x:250,y:575},{x:370,y:580},{x:110,y:460},{x:250,y:450},{x:390,y:460},{x:250,y:130}],r:[{x:250,y:40},{x:200,y:100},{x:280,y:90},{x:320,y:110},{x:200,y:150},{x:310,y:150},{x:250,y:200},{x:160,y:130}]},
+  'ck-left': {ball:{x:10,y:30},b:[{x:250,y:660},{x:130,y:580},{x:250,y:575},{x:370,y:580},{x:110,y:460},{x:250,y:450},{x:390,y:460},{x:250,y:130}],r:[{x:250,y:40},{x:200,y:100},{x:280,y:90},{x:320,y:110},{x:200,y:150},{x:310,y:150},{x:250,y:200},{x:160,y:130}]},
+  'fk-mid':  {ball:{x:250,y:300},b:[{x:250,y:660},{x:130,y:580},{x:250,y:575},{x:370,y:580},{x:110,y:460},{x:250,y:450},{x:390,y:460},{x:250,y:330}],r:[{x:250,y:40},{x:200,y:240},{x:250,y:235},{x:300,y:240},{x:170,y:265},{x:330,y:265},{x:250,y:290},{x:250,y:310}]},
+  'fk-side': {ball:{x:80,y:280},b:[{x:250,y:660},{x:130,y:580},{x:250,y:575},{x:370,y:580},{x:110,y:460},{x:250,y:450},{x:390,y:460},{x:250,y:220}],r:[{x:250,y:40},{x:150,y:200},{x:230,y:210},{x:300,y:200},{x:180,y:250},{x:280,y:250},{x:220,y:280},{x:310,y:280}]},
+};
+
+let players=[],ball={x:250,y:640,isBall:true};
+
+// ── GROUP TOGGLE (ツリー) ──
+const openGroups=new Set();
+function toggleGroup(id){
+  const el=document.getElementById('grp-'+id);
+  const btn=document.getElementById('tg'+id.charAt(0).toUpperCase()+id.slice(1));
+  if(openGroups.has(id)){openGroups.delete(id);el.classList.remove('open');btn.classList.remove('on');}
+  else{openGroups.add(id);el.classList.add('open');btn.classList.add('on');}
+}
+
+// ── Q&A ──
+function toggleQA(el){el.classList.toggle('open');}
+
+// ── PLAYERS ──
+function mkPlayers(m,fn){
+  const p=FP[fn]; if(!p) return [];
+  const lb=['GK','2','3','4','5','6','7','8','9','10','11'].slice(0,m);
+  return[
+    ...p.b.slice(0,m).map((q,i)=>({id:'b'+i,team:'blue',label:lb[i],name:'',dir:'',x:q.x,y:q.y})),
+    ...p.r.slice(0,m).map((q,i)=>({id:'r'+i,team:'red', label:lb[i],name:'',dir:'',x:q.x,y:q.y})),
+  ];
+}
+
+// ── MODE ──
+function setMode(m){
+  mode=m;
+  [3,5,8,11].forEach(n=>document.getElementById('btnMode'+n).classList.toggle('on',n===m));
+  const cfg=MCFG[m],row=document.getElementById('formRow');
+  row.innerHTML='';
+  cfg.f.forEach(f=>{
+    const b=document.createElement('button');
+    b.className='fc'+(f===curForm?' on':'');
+    b.textContent=f;b.dataset.f=f;b.onclick=()=>applyForm(f);
+    row.appendChild(b);
+  });
+  applyForm(cfg.d);arrows=[];curArrow=null;
+}
+
+function applyForm(n){
+  curForm=n;players=mkPlayers(mode,n);ball={x:250,y:640,isBall:true};arrows=[];zones=[];
+  document.querySelectorAll('.fc').forEach(b=>b.classList.toggle('on',b.dataset.f===n));
+  savePat();draw();
+}
+
+function applySetPlay(k){
+  closeSP();
+  const s=SP[k]; if(!s) return;
+  const lb=['GK','2','3','4','5','6','7','8','9','10','11'].slice(0,mode);
+  players=[
+    ...s.b.slice(0,mode).map((q,i)=>({id:'b'+i,team:'blue',label:lb[i],name:'',dir:'',x:q.x,y:q.y})),
+    ...s.r.slice(0,mode).map((q,i)=>({id:'r'+i,team:'red', label:lb[i],name:'',dir:'',x:q.x,y:q.y})),
+  ];
+  ball={...s.ball,isBall:true};arrows=[];zones=[];savePat();draw();
+}
+
+function flipTeams(){
+  players.forEach(p=>{p.y=FH-p.y;p.team=p.team==='red'?'blue':'red';});
+  ball.y=FH-ball.y;
+  savePat();draw();
+}
+function confirmFlip(){
+  showToast('↕️ コートチェンジしました');
+  flipTeams();
+}
+
+// ── PATTERNS ──
+function initPats(){
+  const w=document.getElementById('patTabs');w.innerHTML='';
+  patterns.forEach((p,i)=>{
+    const b=document.createElement('button');
+    b.className='pt'+(i===curPat?' on':'');
+    b.textContent=p.name;b.onclick=()=>switchPat(i);
+    w.appendChild(b);
+  });
+  if(patterns.length<6){const a=document.createElement('button');a.className='pt add';a.textContent='＋';a.onclick=addPat;w.appendChild(a);}
+}
+function savePat(){
+  patterns[curPat].players=JSON.parse(JSON.stringify(players));
+  patterns[curPat].arrows =JSON.parse(JSON.stringify(arrows));
+  patterns[curPat].zones  =JSON.parse(JSON.stringify(zones));
+  patterns[curPat].ball   =JSON.parse(JSON.stringify(ball));
+  patterns[curPat].memo   =memo;
+}
+function switchPat(i){
+  savePat();curPat=i;
+  const p=patterns[i];
+  if(p.players){players=JSON.parse(JSON.stringify(p.players));arrows=JSON.parse(JSON.stringify(p.arrows));zones=JSON.parse(JSON.stringify(p.zones||[]));ball=JSON.parse(JSON.stringify(p.ball));memo=p.memo||'';}
+  updateMemoOv();initPats();draw();
+}
+function addPat(){
+  savePat();
+  const ns=['A','B','C','D','E','F'];
+  patterns.push({name:ns[patterns.length]||String(patterns.length+1),players:null,arrows:[],zones:[],ball:null,memo:''});
+  curPat=patterns.length-1;initPats();applyForm(MCFG[mode].d);
+}
+
+// ── RESIZE ──
+function resize(){
+  const ww=wrap.offsetWidth||window.innerWidth;
+  const wh=wrap.offsetHeight||(window.innerHeight - 
+    (document.getElementById('topbar').offsetHeight||80) - 
+    (document.getElementById('bbar').offsetHeight||80));
+  if(!ww||!wh||ww<10||wh<10){ setTimeout(resize,100); return; }
+  const logH=halfView==='full'?FH:FH/2;
+  const aspect=logH/FW;
+  let cw=ww, ch=Math.round(ww*aspect);
+  if(ch>wh){ ch=wh; cw=Math.round(wh/aspect); }
+  canvas.width=Math.max(1,Math.floor(cw));
+  canvas.height=Math.max(1,Math.floor(ch));
+  sX=canvas.width/FW;
+  sY=canvas.height/logH;
+  draw();
+}
+window.addEventListener('resize',()=>setTimeout(resize,50));
+// orientationchange対応（iPhone回転時）
+window.addEventListener('orientationchange',()=>setTimeout(resize,200));
+
+// ── DRAW ──
+function C(x,y){
+  if(halfView==='full') return[x*sX,y*sY];
+  // halfView=='atk': 味方ゴール(y:350-700)を拡大表示
+  // halfView=='def': 敵ゴール(y:0-350)を拡大表示
+  const offY=halfView==='atk'?FH/2:0;
+  return[x*sX,(y-offY)*sY];
+}
+function L(cx,cy){
+  if(halfView==='full') return[cx/sX,cy/sY];
+  const offY=halfView==='atk'?FH/2:0;
+  return[cx/sX,cy/sY+offY];
+}
+
+function drawField(){
+  // テーマカラーをJSで直接参照
+  const TC={
+    ocean:{fs1:'#1a3d1a',fs2:'#163416',fline:'rgba(0,212,255,0.7)'},
+    field: {fs1:'#1a4020',fs2:'#153618',fline:'rgba(255,255,255,0.75)'},
+    white: {fs1:'#f8faf8',fs2:'#eff5ef',fline:'rgba(0,0,0,0.75)'},
+  };
+  const tc=TC[currentTheme]||TC.ocean;
+  const fs1=tc.fs1,fs2=tc.fs2,fline=tc.fline;
+  const isWhite=currentTheme==='white';
+
+  // ハーフコートモード: 表示する論理座標の範囲
+  const fy0=halfView==='atk'?FH/2:(halfView==='def'?0:0);
+  const fy1=halfView==='def'?FH/2:(halfView==='atk'?FH:FH);
+  const[x0,y0]=C(0,fy0),[x1,y1]=C(FW,fy1);
+  const cw=x1-x0, ch=y1-y0;
+  const lineCol=fline;
+  const lw=sX*2;
+
+  // 背景
+  if(isWhite){
+    ctx.fillStyle='#f5f8f2';ctx.fillRect(x0,y0,cw,ch);
+    for(let i=0;i<7;i++){ctx.fillStyle=i%2===0?'rgba(0,0,0,0.02)':'transparent';ctx.fillRect(x0,y0+i*ch/7,cw,ch/7);}
+  } else {
+    for(let i=0;i<14;i++){ctx.fillStyle=i%2===0?fs1:fs2;ctx.fillRect(x0+i*cw/14,y0,cw/14+1,ch);}
+  }
+
+  ctx.strokeStyle=lineCol;ctx.lineWidth=lw;
+
+  const isFull=halfView==='full';
+  const isAtk =halfView==='atk'; // 味方陣地（下半分）
+  const isDef =halfView==='def'; // 敵陣地（上半分）
+
+  // ── 外枠 ──
+  ctx.strokeRect(x0+1,y0+1,cw-2,ch-2);
+
+  // ── センター関連 ──
+  const [cx,cy]=C(FW/2,FH/2);
+  const circleR=60*sX;
+  const spotCol=isWhite?'rgba(0,0,0,0.7)':'rgba(255,255,255,0.8)';
+
+  if(isFull){
+    // 全面: センターライン＋フルサークル＋スポット
+    ctx.beginPath();ctx.moveTo(x0,cy);ctx.lineTo(x1,cy);ctx.stroke();
+    ctx.beginPath();ctx.arc(cx,cy,circleR,0,Math.PI*2);ctx.stroke();
+    ctx.beginPath();ctx.arc(cx,cy,3*sX,0,Math.PI*2);ctx.fillStyle=spotCol;ctx.fill();
+  } else {
+    // ハーフ: 切断面に半円のみ（センターライン・フルサークル・スポットは非表示）
+    // atk(味方陣地=下): 切断面はy=FH/2 → キャンバス上端(y0) → 下向き半円
+    // def(敵陣地=上):  切断面はy=FH/2 → キャンバス下端(y1) → 上向き半円
+    const edgeY = isAtk ? y0 : y1;
+    const startA= isAtk ? 0       : Math.PI;   // 下半円 or 上半円
+    const endA  = isAtk ? Math.PI : Math.PI*2;
+    ctx.beginPath();ctx.arc(cx,edgeY,circleR,startA,endA);ctx.stroke();
+    // 切断面のライン（半円の直径部分）
+    ctx.beginPath();ctx.moveTo(cx-circleR,edgeY);ctx.lineTo(cx+circleR,edgeY);ctx.stroke();
+  }
+
+  // ── ペナルティエリア・ゴールエリア・ゴール ──
+  const pwr=mode<=5?0.6:0.52, phr=mode<=5?0.1:0.114;
+  const pw=FW*pwr*sX, ph=FH*phr*sY;
+  const px=C((FW-FW*pwr)/2,0)[0];
+  const gwr=pwr*0.54, gw=FW*gwr*sX, gh=FH*phr*0.5*sY;
+  const gx=C((FW-FW*gwr)/2,0)[0];
+  const gwr2=mode<=5?0.16:0.20, gW=FW*gwr2*sX, gH=16*sY;
+  const gX=C((FW-FW*gwr2)/2,0)[0];
+
+  // 上側（敵ゴール）: 全面 or 守備半面のみ表示
+  if(isFull||isDef){
+    ctx.strokeRect(px,y0,pw,ph);           // ペナルティエリア上
+    ctx.strokeRect(gx,y0,gw,gh);           // ゴールエリア上
+    ctx.strokeRect(gX,y0-gH,gW,gH);        // ゴール上
+    // ペナルティスポット上
+    ctx.beginPath();ctx.arc(...C(FW/2,60),3*sX,0,Math.PI*2);ctx.fillStyle=spotCol;ctx.fill();
+    // ペナルティアーク（D）上
+    const paTopY=C(FW/2,FH*phr)[1];
+    ctx.beginPath();ctx.arc(cx,paTopY,40*sX,0.25*Math.PI,0.75*Math.PI);ctx.stroke();
+    // コーナーアーク上
+    [[0,0],[FW,0]].forEach(([a,b],i)=>{
+      ctx.beginPath();ctx.arc(...C(a,b),12*sX,[0,Math.PI/2][i],[0,Math.PI/2][i]+Math.PI/2);
+      ctx.strokeStyle=isWhite?lineCol:'rgba(255,255,255,0.5)';ctx.stroke();
+      ctx.strokeStyle=lineCol;
+    });
+  }
+
+  // 下側（味方ゴール）: 全面 or 攻撃半面のみ表示
+  if(isFull||isAtk){
+    ctx.strokeRect(px,y1-ph,pw,ph);        // ペナルティエリア下
+    ctx.strokeRect(gx,y1-gh,gw,gh);        // ゴールエリア下
+    ctx.strokeRect(gX,y1,gW,gH);           // ゴール下
+    // ペナルティスポット下
+    ctx.beginPath();ctx.arc(...C(FW/2,FH-60),3*sX,0,Math.PI*2);ctx.fillStyle=spotCol;ctx.fill();
+    // ペナルティアーク（D）下
+    const paBotY=C(FW/2,FH-FH*phr)[1];
+    ctx.beginPath();ctx.arc(cx,paBotY,40*sX,1.25*Math.PI,1.75*Math.PI);ctx.stroke();
+    // コーナーアーク下
+    [[0,FH],[FW,FH]].forEach(([a,b],i)=>{
+      ctx.beginPath();ctx.arc(...C(a,b),12*sX,[-Math.PI/2,Math.PI][i],[-Math.PI/2,Math.PI][i]+Math.PI/2);
+      ctx.strokeStyle=isWhite?lineCol:'rgba(255,255,255,0.5)';ctx.stroke();
+      ctx.strokeStyle=lineCol;
+    });
+  }
+}
+
+function setTheme(t){
+  currentTheme=t;
+  if(t==='ocean') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme',t);
+  ['Ocean','Field','White'].forEach(n=>{
+    const el=document.getElementById('th'+n);
+    if(el) el.classList.toggle('on',t===n.toLowerCase());
+  });
+  // キャンバス背景もテーマに合わせる
+  const wbBg={ocean:'#060d1a',field:'#071207',white:'#f0f4f8'};
+  wrap.style.background=wbBg[t]||'#060d1a';
+  // ホワイトモードはbodyにlight class
+  document.body.classList.toggle('light-theme', t==='white');
+  setTimeout(draw,0);
+  try{localStorage.setItem('tb_theme',t);}catch(e){}
+}
+
+function drawZones(){
+  const all=[...zones];if(curZone)all.push(curZone);
+  all.forEach(z=>{
+    const[x0,y0]=C(Math.min(z.x1,z.x2),Math.min(z.y1,z.y2));
+    const[x1,y1]=C(Math.max(z.x1,z.x2),Math.max(z.y1,z.y2));
+    ctx.fillStyle=z.col;ctx.fillRect(x0,y0,x1-x0,y1-y0);
+    ctx.strokeStyle=z.col.replace(/[\d.]+\)$/,'0.85)');ctx.lineWidth=sX*2;ctx.strokeRect(x0,y0,x1-x0,y1-y0);
+  });
+}
+
+function drawHeat(){
+  if(!showHeat)return;
+  const defs=players.filter(p=>p.team!==attackTeam);
+  for(let gx=0;gx<30;gx++)for(let gy=0;gy<30;gy++){
+    const lx=(gx+0.5)*FW/30,ly=(gy+0.5)*FH/30;
+    let md=Infinity;defs.forEach(d=>{const dist=Math.hypot(d.x-lx,d.y-ly);if(dist<md)md=dist;});
+    const[cx,cy]=C(lx,ly),cw=FW/30*sX+1.5,ch=FH/30*sY+1.5;
+    ctx.fillStyle=md<30?'rgba(0,0,100,0.72)':md<55?'rgba(20,60,200,0.55)':md<85?'rgba(255,220,0,0.75)':'rgba(80,255,80,0.85)';
+    ctx.fillRect(cx-cw/2,cy-ch/2,cw,ch);
+  }
+  const lx0=8*sX,ly0=8*sY,bw=15*sX,bh=11*sY,gap=3*sY;
+  const items=[['rgba(80,255,80,0.85)','スペース大'],['rgba(255,220,0,0.75)','やや空き'],['rgba(20,60,200,0.55)','守備あり'],['rgba(0,0,100,0.72)','密集']];
+  ctx.fillStyle='rgba(0,0,0,0.55)';ctx.fillRect(lx0-4,ly0-4,120*sX,(bh+gap)*4+8);
+  items.forEach(([c,l],i)=>{
+    const y=ly0+i*(bh+gap);
+    ctx.fillStyle=c;ctx.fillRect(lx0,y,bw,bh);
+    ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1;ctx.strokeRect(lx0,y,bw,bh);
+    ctx.fillStyle='#fff';ctx.font=`bold ${Math.round(8*sX)}px sans-serif`;
+    ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(l,lx0+bw+4*sX,y+bh/2);
+  });
+}
+
+function psd(px,py,ax,ay,bx,by){
+  const dx=bx-ax,dy=by-ay,l2=dx*dx+dy*dy;
+  if(!l2)return Math.hypot(px-ax,py-ay);
+  const t=Math.max(0,Math.min(1,((px-ax)*dx+(py-ay)*dy)/l2));
+  return Math.hypot(px-(ax+t*dx),py-(ay+t*dy));
+}
+
+function drawPass(){
+  if(!showPass)return;
+  const atks=players.filter(p=>p.team===attackTeam),defs=players.filter(p=>p.team!==attackTeam);
+  let bh=atks[0],bd=Infinity;
+  atks.forEach(p=>{const d=Math.hypot(p.x-ball.x,p.y-ball.y);if(d<bd){bd=d;bh=p;}});
+  for(let i=0;i<atks.length;i++)for(let j=i+1;j<atks.length;j++){
+    const p1=atks[i],p2=atks[j];
+    let blk=false;defs.forEach(d=>{if(psd(d.x,d.y,p1.x,p1.y,p2.x,p2.y)<40)blk=true;});
+    const op=blk?0.25:0.75,fh=(p1===bh||p2===bh);
+    const[c1x,c1y]=C(p1.x,p1.y),[c2x,c2y]=C(p2.x,p2.y);
+    ctx.beginPath();ctx.moveTo(c1x,c1y);ctx.lineTo(c2x,c2y);
+    ctx.strokeStyle=fh?`rgba(255,80,80,${op})`:`rgba(255,140,140,${op*0.8})`;
+    ctx.lineWidth=sX*(fh?(op>0.5?4:2):(op>0.5?2.5:1.5));
+    ctx.setLineDash(fh&&op>0.5?[]:[6*sX,4*sX]);ctx.stroke();ctx.setLineDash([]);
+  }
+}
+
+function drawArrows(){
+  const all=[...arrows];if(curArrow&&curArrow.pts.length>1)all.push(curArrow);
+  all.forEach(ar=>{
+    if(ar.pts.length<2)return;
+    ctx.beginPath();ctx.moveTo(...C(ar.pts[0].x,ar.pts[0].y));
+    ar.pts.forEach((_,i)=>{if(i)ctx.lineTo(...C(ar.pts[i].x,ar.pts[i].y));});
+    ctx.strokeStyle=ar.c;ctx.lineWidth=sX*3.5;ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke();
+    const la=ar.pts[ar.pts.length-1],pr=ar.pts[ar.pts.length-2];
+    const ang=Math.atan2(la.y-pr.y,la.x-pr.x),[lx,ly]=C(la.x,la.y),al=14*sX;
+    ctx.beginPath();ctx.moveTo(lx,ly);
+    ctx.lineTo(lx-al*Math.cos(ang-0.4),ly-al*Math.sin(ang-0.4));
+    ctx.lineTo(lx-al*Math.cos(ang+0.4),ly-al*Math.sin(ang+0.4));
+    ctx.closePath();ctx.fillStyle=ar.c;ctx.fill();
+  });
+}
+
+function drawPlayer(p){
+  const[cx,cy]=C(p.x,p.y),r=(mode===11?15:mode<=3?21:19)*sX;
+  ctx.beginPath();ctx.arc(cx+2*sX,cy+3*sX,r,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fill();
+  const fill=p.team==='red'?(p.label==='GK'?'#b02030':'#e8334a'):(p.label==='GK'?'#1a3a8f':'#2d6de8');
+  const strk=p.team==='red'?'#ff8895':'#80a8ff';
+  if(p.team===attackTeam){ctx.beginPath();ctx.arc(cx,cy,r+4*sX,0,Math.PI*2);ctx.fillStyle=p.team==='red'?'rgba(232,51,74,0.1)':'rgba(45,109,232,0.1)';ctx.fill();}
+  const g=ctx.createRadialGradient(cx-r*0.3,cy-r*0.3,0,cx,cy,r);
+  g.addColorStop(0,strk);g.addColorStop(1,fill);
+  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
+  ctx.strokeStyle=strk;ctx.lineWidth=sX*(p.team===attackTeam?2:1.5);ctx.stroke();
+  const atks=players.filter(q=>q.team===attackTeam);
+  let bhold=atks[0],bmd=Infinity;
+  atks.forEach(q=>{const d=Math.hypot(q.x-ball.x,q.y-ball.y);if(d<bmd){bmd=d;bhold=q;}});
+  if(p===bhold){ctx.beginPath();ctx.arc(cx,cy,r+5*sX,0,Math.PI*2);ctx.strokeStyle='#f5c518';ctx.lineWidth=sX*2.5;ctx.stroke();}
+  const disp=p.name||p.label;
+  const fs=p.name?Math.max(7,11-(p.name.length>3?2:0)):(mode===11?10:12);
+  ctx.shadowColor='rgba(0,0,0,0.5)';ctx.shadowBlur=2;
+  ctx.fillStyle='#fff';ctx.font=`900 ${Math.round(fs*sX)}px -apple-system,sans-serif`;
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(disp,cx,cy);
+  ctx.shadowBlur=0;
+  // 向き矢印
+  if(p.dir){
+    const dm={'↑':[0,-1],'↓':[0,1],'←':[-1,0],'→':[1,0],'↖':[-0.707,-0.707],'↗':[0.707,-0.707],'↙':[-0.707,0.707],'↘':[0.707,0.707]};
+    const dv=dm[p.dir];
+    if(dv){
+      const al=r*1.7,ax=cx+dv[0]*al,ay=cy+dv[1]*al;
+      ctx.beginPath();ctx.moveTo(cx+dv[0]*r,cy+dv[1]*r);ctx.lineTo(ax,ay);
+      ctx.strokeStyle=p.team==='red'?'#ffcc00':'#aaddff';ctx.lineWidth=sX*2.5;ctx.stroke();
+      const ang=Math.atan2(dv[1],dv[0]),hl=6*sX;
+      ctx.beginPath();ctx.moveTo(ax,ay);
+      ctx.lineTo(ax-hl*Math.cos(ang-0.5),ay-hl*Math.sin(ang-0.5));
+      ctx.lineTo(ax-hl*Math.cos(ang+0.5),ay-hl*Math.sin(ang+0.5));
+      ctx.closePath();ctx.fillStyle=p.team==='red'?'#ffcc00':'#aaddff';ctx.fill();
+    }
+  }
+}
+
+function drawBall(){
+  const[cx,cy]=C(ball.x,ball.y),r=11*sX;
+  ctx.beginPath();ctx.arc(cx+2,cy+2,r,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fill();
+  const g=ctx.createRadialGradient(cx-r*0.3,cy-r*0.3,0,cx,cy,r);
+  g.addColorStop(0,'#ffe566');g.addColorStop(1,'#f5c518');
+  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
+  ctx.strokeStyle='#b8860b';ctx.lineWidth=sX*1.5;ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,r*0.4,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,0.35)';ctx.fill();
+}
+
+function draw(){
+  if(!sX||!sY||!canvas.width||!canvas.height) return;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  drawField();drawZones();drawHeat();drawPass();drawArrows();
+  players.forEach(drawPlayer);drawBall();
+}
+
+// ── INTERACTION ──
+function ePos(e){
+  const r=canvas.getBoundingClientRect();
+  const src=e.touches?e.touches[0]:e;
+  return L(src.clientX-r.left,src.clientY-r.top);
+}
+function findTgt(lx,ly){
+  if(Math.hypot(lx-ball.x,ly-ball.y)<22)return ball;
+  let cl=null,md=30;
+  players.forEach(p=>{const d=Math.hypot(lx-p.x,ly-p.y);if(d<md){md=d;cl=p;}});
+  return cl;
+}
+
+function onStart(e){
+  e.preventDefault();
+  const[lx,ly]=ePos(e);
+  if(arrowMode){curArrow={pts:[{x:lx,y:ly}],c:'#ffd60a'};return;}
+  if(zoneMode){curZone={x1:lx,y1:ly,x2:lx,y2:ly,col:ZONE_COLORS[zoneColorIdx%ZONE_COLORS.length]};return;}
+  if(dirMode){const t=findTgt(lx,ly);if(t&&!t.isBall)openNameMo(t);return;}
+  const t=findTgt(lx,ly);
+  if(t&&!t.isBall)tapTmr=setTimeout(()=>{openNameMo(t);tapTmr=null;},600);
+  if(t){dragging=t;dOX=lx-t.x;dOY=ly-t.y;}
+}
+function onMove(e){
+  e.preventDefault();
+  const[lx,ly]=ePos(e);
+  if(tapTmr){clearTimeout(tapTmr);tapTmr=null;}
+  if(arrowMode&&curArrow){curArrow.pts.push({x:lx,y:ly});draw();return;}
+  if(zoneMode&&curZone){curZone.x2=lx;curZone.y2=ly;draw();return;}
+  if(dragging){dragging.x=Math.max(10,Math.min(FW-10,lx-dOX));dragging.y=Math.max(10,Math.min(FH-10,ly-dOY));draw();}
+}
+function onEnd(e){
+  e.preventDefault();
+  if(tapTmr){clearTimeout(tapTmr);tapTmr=null;}
+  if(arrowMode&&curArrow){if(curArrow.pts.length>2)arrows.push(curArrow);curArrow=null;draw();return;}
+  if(zoneMode&&curZone){
+    if(Math.abs(curZone.x2-curZone.x1)>10&&Math.abs(curZone.y2-curZone.y1)>10){zones.push(curZone);zoneColorIdx++;}
+    curZone=null;draw();return;
+  }
+  if(dragging)savePat();
+  dragging=null;
+}
+canvas.addEventListener('mousedown',onStart);canvas.addEventListener('mousemove',onMove);canvas.addEventListener('mouseup',onEnd);
+canvas.addEventListener('touchstart',onStart,{passive:false});canvas.addEventListener('touchmove',onMove,{passive:false});canvas.addEventListener('touchend',onEnd,{passive:false});
+
+// ── CONTROLS ──
+function setAttackTeam(t){
+  attackTeam=t;
+  document.getElementById('btnTeamRed').className='ap'+(t==='red'?' red':'');
+  document.getElementById('btnTeamBlue').className='ap'+(t==='blue'?' blue':'');
+  draw();
+}
+function allModesOff(){
+  arrowMode=false;zoneMode=false;dirMode=false;
+  document.getElementById('btnArrow').classList.remove('yw');
+  document.getElementById('btnZone').classList.remove('gn');
+  document.getElementById('btnDir').classList.remove('pu');
+  document.getElementById('modeInd').style.display='none';
+  document.getElementById('zoneInd').style.display='none';
+  document.getElementById('dirInd').style.display='none';
+}
+function toggleArrow(){
+  const was=arrowMode;allModesOff();arrowMode=!was;
+  document.getElementById('btnArrow').classList.toggle('yw',arrowMode);
+  document.getElementById('modeInd').style.display=arrowMode?'block':'none';
+}
+function togglePass(){showPass=!showPass;document.getElementById('btnPass').classList.toggle('on',showPass);draw();}
+function toggleHeat(){showHeat=!showHeat;document.getElementById('btnHeat').classList.toggle('on',showHeat);draw();}
+function toggleZoneMode(){
+  const was=zoneMode;allModesOff();zoneMode=!was;
+  document.getElementById('btnZone').classList.toggle('gn',zoneMode);
+  document.getElementById('zoneInd').style.display=zoneMode?'block':'none';
+}
+function toggleDirMode(){
+  const was=dirMode;allModesOff();dirMode=!was;
+  document.getElementById('btnDir').classList.toggle('pu',dirMode);
+  document.getElementById('dirInd').style.display=dirMode?'block':'none';
+}
+function undoArrow(){
+  if(arrows.length>0){arrows.pop();draw();}
+  else if(zones.length>0){zones.pop();draw();}
+}
+function clearAll(){arrows=[];curArrow=null;zones=[];curZone=null;draw();}
+
+// ── NAME / DIR ──
+function openNameMo(p){
+  editP=p;
+  document.getElementById('numIn').value=p.label||'';
+  document.getElementById('nameIn').value=p.name||'';
+  selDirArrow=p.dir||'';
+  updateDirPicker();
+  document.getElementById('nameMo').classList.add('open');
+  setTimeout(()=>document.getElementById('numIn').focus(),100);
+}
+function closeNameMo(){document.getElementById('nameMo').classList.remove('open');editP=null;}
+function confirmName(){
+  if(editP){
+    const num=document.getElementById('numIn').value.trim();
+    if(num)editP.label=num;
+    editP.name=document.getElementById('nameIn').value.trim();
+    editP.dir=selDirArrow;
+    savePat();draw();
+  }
+  closeNameMo();
+}
+function pickDir(d){selDirArrow=d;updateDirPicker();}
+function updateDirPicker(){
+  document.querySelectorAll('.dpBtn').forEach(b=>{
+    b.classList.toggle('sel',b.textContent===selDirArrow||(selDirArrow===''&&b.classList.contains('dpNone')));
+  });
+}
+document.getElementById('nameIn').addEventListener('keydown',e=>{if(e.key==='Enter')confirmName();});
+
+// ── MEMO ──
+function openMemo(){document.getElementById('memoIn').value=memo;document.getElementById('memoMo').classList.add('open');setTimeout(()=>document.getElementById('memoIn').focus(),100);}
+function closeMemo(){document.getElementById('memoMo').classList.remove('open');}
+function confirmMemo(){memo=document.getElementById('memoIn').value;patterns[curPat].memo=memo;updateMemoOv();closeMemo();}
+function updateMemoOv(){
+  const ov=document.getElementById('memoOv'),tx=document.getElementById('memoTx');
+  if(memo){ov.style.display='block';tx.textContent=memo;}else{ov.style.display='none';}
+}
+
+// ── HELP ──
+function openHelp(){document.getElementById('helpMo').classList.add('open');}
+function closeHelp(){document.getElementById('helpMo').classList.remove('open');}
+
+// ── SETPLAY ──
+function openSetPlay(){document.getElementById('spMo').classList.add('open');}
+function closeSP(){document.getElementById('spMo').classList.remove('open');}
+
+// ── ANIMATION ──
+function toggleRecord(){
+  if(isPlay){
+    clearTimeout(playTmr);isPlay=false;
+    if(recFrames.length>0){const f=recFrames[0];players=JSON.parse(JSON.stringify(f.players));ball=JSON.parse(JSON.stringify(f.ball));arrows=JSON.parse(JSON.stringify(f.arrows));draw();}
+    const bp=document.getElementById('btnPlay');bp.querySelector('.i').textContent='▶️';bp.querySelector('.l').textContent='再生';
+    return;
+  }
+  isRec=!isRec;
+  const b=document.getElementById('btnRec');
+  if(isRec){
+    recFrames=[];b.classList.add('rd','rec');b.querySelector('.i').textContent='⏹';b.querySelector('.l').textContent='停止';
+    document.getElementById('btnPlay').style.display='none';capFrame();
+  }else{
+    b.classList.remove('rd','rec');b.querySelector('.i').textContent='⏺';b.querySelector('.l').textContent='記録';
+    if(recFrames.length>1)document.getElementById('btnPlay').style.display='flex';
+  }
+}
+function capFrame(){
+  if(!isRec)return;
+  recFrames.push({players:JSON.parse(JSON.stringify(players)),ball:JSON.parse(JSON.stringify(ball)),arrows:JSON.parse(JSON.stringify(arrows))});
+  setTimeout(capFrame,300);
+}
+function playAnim(){
+  if(isPlay||recFrames.length<2)return;
+  isPlay=true;
+  const b=document.getElementById('btnPlay');b.querySelector('.i').textContent='⏸';b.querySelector('.l').textContent='停止';
+  let i=0;
+  function step(){
+    if(i>=recFrames.length){
+      isPlay=false;b.querySelector('.i').textContent='▶️';b.querySelector('.l').textContent='再生';
+      if(recFrames.length>0){const f=recFrames[0];players=JSON.parse(JSON.stringify(f.players));ball=JSON.parse(JSON.stringify(f.ball));arrows=JSON.parse(JSON.stringify(f.arrows));draw();}
+      return;
+    }
+    const f=recFrames[i++];players=JSON.parse(JSON.stringify(f.players));ball=JSON.parse(JSON.stringify(f.ball));arrows=JSON.parse(JSON.stringify(f.arrows));
+    draw();playTmr=setTimeout(step,300);
+  }
+  step();
+}
+
+// ── QR ──
+function showQR(){
+  try{
+    const s={m:mode,t:attackTeam,p:players.map(p=>({x:Math.round(p.x),y:Math.round(p.y),l:p.label,n:p.name,tm:p.team})),b:{x:Math.round(ball.x),y:Math.round(ball.y)}};
+    const enc=btoa(JSON.stringify(s)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+    const url=location.href.split('?')[0]+'?s='+enc;
+    document.getElementById('qrMo').classList.add('open');
+    const qc=document.getElementById('qr-canvas'),qx=qc.getContext('2d');
+    qx.fillStyle='#fff';qx.fillRect(0,0,180,180);
+    qx.fillStyle='#666';qx.font='11px sans-serif';qx.textAlign='center';qx.fillText('読み込み中...',90,90);
+    const img=new Image();img.crossOrigin='anonymous';
+    img.onload=()=>qx.drawImage(img,0,0,180,180);
+    img.onerror=()=>{qx.fillStyle='#e63946';qx.fillText('オフライン時は利用不可',90,90);};
+    img.src='https://api.qrserver.com/v1/create-qr-code/?size=180x180&data='+encodeURIComponent(url);
+  }catch(e){}
+}
+function closeQR(){document.getElementById('qrMo').classList.remove('open');}
+
+// ── HALF VIEW ──
+function setHalfView(v){
+  halfView=v;
+  ['Atk','Def','Full'].forEach(n=>{
+    const b=document.getElementById('btnHalf'+n);
+    if(b) b.classList.toggle('on', v===n.toLowerCase());
+  });
+  resize();
+}
+
+// ── TOAST ──
+function showToast(msg,ms=2200){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._tmr);
+  t._tmr=setTimeout(()=>t.classList.remove('show'),ms);
+}
+
+// ── SAVE ──
+function saveImg(){
+  try{
+    const oc=document.createElement('canvas');
+    oc.width=canvas.width;oc.height=canvas.height;
+    const ox=oc.getContext('2d');ox.drawImage(canvas,0,0);
+    if(memo){
+      ox.fillStyle='rgba(10,14,20,0.85)';ox.fillRect(0,canvas.height-40,canvas.width,40);
+      ox.fillStyle='#e2eaf5';ox.font=`bold ${Math.round(10*sX)}px sans-serif`;
+      ox.textAlign='left';ox.textBaseline='middle';
+      ox.fillText(memo.split('\n')[0],8,canvas.height-20);
+    }
+    if(navigator.share&&navigator.canShare){
+      oc.toBlob(async blob=>{
+        const file=new File([blob],'作戦ボード.png',{type:'image/png'});
+        if(navigator.canShare({files:[file]})){
+          try{await navigator.share({files:[file],title:'作戦ボード'});}catch(e){}
+        }else{dlFb(oc);}
+      },'image/png');
+    }else{dlFb(oc);}
+  }catch(e){showToast('保存に失敗しました');}
+}
+function dlFb(oc){
+  try{
+    const a=document.createElement('a');
+    a.download='作戦ボード.png';
+    a.href=oc.toDataURL('image/png');
+    a.click();
+  }catch(e){}
+}
+
+// ── VIEWPORT ZOOM FIX (Safari) ──
+try{
+  document.addEventListener('focusout',function(){
+    setTimeout(function(){ window.scrollTo(0,0); },100);
+  });
+}catch(e){}
+
+// ── INIT ──
+function init(){
+  initPats();
+  setMode(8);
+
+  // テーマ復元
+  try{
+    const saved=localStorage.getItem('tb_theme')||'ocean';
+    currentTheme=saved;
+    if(saved==='ocean') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme',saved);
+    document.body.classList.toggle('light-theme',saved==='white');
+    ['Ocean','Field','White'].forEach(n=>{
+      const el=document.getElementById('th'+n);
+      if(el) el.classList.toggle('on',saved===n.toLowerCase());
+    });
+  }catch(e){ currentTheme='ocean'; }
+
+  // パスラインON
+  const bp=document.getElementById('btnPass');
+  if(bp) bp.classList.add('on');
+
+  // サイズ計算（DOM確定を待つ）
+  setTimeout(resize, 100);
+
+  // 初回ヘルプ
+  try{
+    if(!localStorage.getItem('tb_v2')){
+      localStorage.setItem('tb_v2','1');
+      setTimeout(openHelp,800);
+    }
+  }catch(e){}
+}
+
+// DOM確定後に初期化
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',init);
+}else{
+  init();
+}
+</script>
+</body>
+</html>
