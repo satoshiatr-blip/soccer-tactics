@@ -236,6 +236,7 @@ canvas{display:block;border-radius:6px;}
   <div class="hero-h1">TACTICS<em>BOARD</em></div>
   <p class="hero-desc">
     コーチの説明が<strong>劇的に伝わるデジタル作戦ボード</strong>。<br>
+    視野・フリー選手・パスコースを自動可視化。<br>
     URLを開くだけ。インストール不要。完全無料。
   </p>
   <a class="url-box" href="https://satoshiatr-blip.github.io/soccer-tactics/" target="_blank" style="text-decoration:none;cursor:pointer;">
@@ -331,9 +332,61 @@ canvas{display:block;border-radius:6px;}
           <div class="pl-t"><strong>細い点線</strong><span>ブロックされたコース</span></div>
         </div>
         <div class="pl">
-          <div style="width:18px;height:18px;border-radius:50%;border:2px solid #f5c518;flex-shrink:0;"></div>
-          <div class="pl-t"><strong>黄色リング</strong><span>ボール保持者</span></div>
+          <div style="width:18px;height:18px;border-radius:50%;border:2px solid #f5c518;box-shadow:0 0 5px #f5c518;flex-shrink:0;"></div>
+          <div class="pl-t"><strong>金色発光リング</strong><span>ボール保持者</span></div>
         </div>
+        <div class="pl">
+          <div style="width:18px;height:18px;border-radius:50%;border:2px solid #39ff14;box-shadow:0 0 5px #39ff14;flex-shrink:0;"></div>
+          <div class="pl-t"><strong>緑発光リング</strong><span>フリー選手（自動検出）</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISION CONE CARD -->
+  <div class="heat-card" style="border-color:rgba(0,212,255,0.2);background:rgba(0,212,255,0.03);margin-top:16px;">
+    <div class="hc-head" style="border-bottom-color:rgba(0,212,255,0.1);">
+      <div class="hc-title" style="color:#00d4ff;">👁 視野コーン</div>
+      <div class="hc-badge" style="color:#00d4ff;background:rgba(0,212,255,0.1);border-color:rgba(0,212,255,0.2);">NEW</div>
+    </div>
+    <div class="hc-body">
+      <div class="hc-text">
+        <p class="hc-desc">
+          選手をタップすると<strong>シアン色の視野コーン</strong>が出現。<br>
+          先端のハンドルをドラッグして向きを自由に変更。<br>
+          「どこを見ているか」を瞬時に可視化。
+        </p>
+        <div class="legend">
+          <div class="li"><div class="ld" style="background:rgba(0,212,255,0.6);"></div>タップでコーン表示</div>
+          <div class="li"><div class="ld" style="background:#00d4ff;border-radius:50%;border:1.5px solid #fff;"></div>先端ハンドルで方向変更</div>
+        </div>
+      </div>
+      <div class="hc-canvas">
+        <canvas id="coneCanvas" width="100" height="130"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- FREE PLAYER CARD -->
+  <div class="heat-card" style="border-color:rgba(57,255,20,0.2);background:rgba(57,255,20,0.02);margin-top:16px;">
+    <div class="hc-head" style="border-bottom-color:rgba(57,255,20,0.1);">
+      <div class="hc-title" style="color:#39ff14;">⚡ フリー選手検出</div>
+      <div class="hc-badge" style="color:#39ff14;background:rgba(57,255,20,0.1);border-color:rgba(57,255,20,0.2);">NEW</div>
+    </div>
+    <div class="hc-body">
+      <div class="hc-text">
+        <p class="hc-desc">
+          マークが外れた選手を<strong>ライムグリーンで自動発光</strong>。<br>
+          パスコースが通っている選手のみ表示。<br>
+          「ここ空いてる！」が子供でも一目で分かる。
+        </p>
+        <div class="legend">
+          <div class="li"><div style="width:11px;height:11px;border-radius:50%;border:2px solid #39ff14;box-shadow:0 0 5px #39ff14;flex-shrink:0;"></div>フリー選手（点滅発光）</div>
+          <div class="li"><div style="width:11px;height:11px;border-radius:50%;border:2px solid #f5c518;box-shadow:0 0 5px #f5c518;flex-shrink:0;"></div>ボール保持者（金色発光）</div>
+        </div>
+      </div>
+      <div class="hc-canvas">
+        <canvas id="freeCanvas" width="100" height="130"></canvas>
       </div>
     </div>
   </div>
@@ -348,6 +401,11 @@ canvas{display:block;border-radius:6px;}
       <div class="oi">👆</div>
       <div><div class="ot">ドラッグで選手・ボールを移動</div><div class="od">動かすたびにパスライン・スペースマップが即更新</div></div>
       <div class="otag">1本指</div>
+    </div>
+    <div class="op">
+      <div class="oi">👁</div>
+      <div><div class="ot">タップで視野コーンを表示</div><div class="od">シアンの扇形が出現。先端ハンドルをドラッグで方向を自由に変更</div></div>
+      <div class="otag" style="color:rgba(0,212,255,0.7);border-color:rgba(0,212,255,0.2);background:rgba(0,212,255,0.06);">NEW</div>
     </div>
     <div class="op">
       <div class="oi">✋</div>
@@ -515,6 +573,84 @@ canvas{display:block;border-radius:6px;}
     g.addColorStop(0,'#ff8895');g.addColorStop(1,'#e8334a');
     x.fillStyle=g;x.fill();x.strokeStyle='#ff9999';x.lineWidth=1;x.stroke();
   });
+})();
+
+// VISION CONE
+(function(){
+  const c=document.getElementById('coneCanvas');if(!c)return;
+  const x=c.getContext('2d'),W=100,H=130;
+  for(let i=0;i<5;i++){x.fillStyle=i%2===0?'#1c4220':'#163818';x.fillRect(i*W/5,0,W/5+1,H);}
+  x.strokeStyle='rgba(255,255,255,0.4)';x.lineWidth=1;
+  x.strokeRect(3,3,W-6,H-6);
+  x.beginPath();x.moveTo(3,H/2);x.lineTo(W-3,H/2);x.stroke();
+  const px=W*.5,py=H*.78;
+  const baseAng=-Math.PI/2,halfAng=Math.PI*0.4,coneLen=68;
+  const grad=x.createRadialGradient(px,py,7,px,py,coneLen);
+  grad.addColorStop(0,'rgba(0,212,255,0.35)');
+  grad.addColorStop(0.6,'rgba(0,212,255,0.15)');
+  grad.addColorStop(1,'rgba(0,212,255,0)');
+  x.beginPath();x.moveTo(px,py);x.arc(px,py,coneLen,baseAng-halfAng,baseAng+halfAng);x.closePath();
+  x.fillStyle=grad;x.fill();
+  x.beginPath();x.moveTo(px,py);x.arc(px,py,coneLen,baseAng-halfAng,baseAng+halfAng);x.closePath();
+  x.strokeStyle='rgba(0,212,255,0.5)';x.lineWidth=1;x.stroke();
+  const hx=px+Math.cos(baseAng)*coneLen,hy=py+Math.sin(baseAng)*coneLen;
+  x.beginPath();x.arc(hx,hy,6,0,Math.PI*2);
+  x.fillStyle='rgba(0,212,255,0.95)';x.fill();
+  x.strokeStyle='#fff';x.lineWidth=1.5;x.stroke();
+  [[W*.3,H*.28],[W*.65,H*.22],[W*.5,H*.38]].forEach(([rx,ry])=>{
+    x.beginPath();x.arc(rx,ry,5,0,Math.PI*2);
+    const g=x.createRadialGradient(rx-1,ry-1,0,rx,ry,5);
+    g.addColorStop(0,'#ff8895');g.addColorStop(1,'#e8334a');
+    x.fillStyle=g;x.fill();x.strokeStyle='#ff9999';x.lineWidth=1;x.stroke();
+  });
+  x.beginPath();x.arc(px,py,8,0,Math.PI*2);
+  const gp=x.createRadialGradient(px-2,py-2,0,px,py,8);
+  gp.addColorStop(0,'#80a8ff');gp.addColorStop(1,'#2d6de8');
+  x.fillStyle=gp;x.fill();x.strokeStyle='#80a8ff';x.lineWidth=1;x.stroke();
+  x.fillStyle='rgba(0,212,255,0.6)';x.font='bold 7px sans-serif';x.textAlign='center';
+  x.fillText('ドラッグで方向変更',W/2,H-4);
+})();
+
+// FREE PLAYER
+(function(){
+  const c=document.getElementById('freeCanvas');if(!c)return;
+  const x=c.getContext('2d'),W=100,H=130;
+  for(let i=0;i<5;i++){x.fillStyle=i%2===0?'#1c4220':'#163818';x.fillRect(i*W/5,0,W/5+1,H);}
+  x.strokeStyle='rgba(255,255,255,0.4)';x.lineWidth=1;
+  x.strokeRect(3,3,W-6,H-6);
+  x.beginPath();x.moveTo(3,H/2);x.lineTo(W-3,H/2);x.stroke();
+  [[W*.5,H*.3],[W*.22,H*.42]].forEach(([dx,dy])=>{
+    x.beginPath();x.arc(dx,dy,5,0,Math.PI*2);
+    const g=x.createRadialGradient(dx-1,dy-1,0,dx,dy,5);
+    g.addColorStop(0,'#ff8895');g.addColorStop(1,'#e8334a');
+    x.fillStyle=g;x.fill();x.strokeStyle='#ff9999';x.lineWidth=1;x.stroke();
+  });
+  const bx=W*.5,by=H*.78;
+  x.save();x.shadowColor='#f5c518';x.shadowBlur=8;
+  x.beginPath();x.arc(bx,by,11,0,Math.PI*2);
+  x.strokeStyle='rgba(245,197,24,0.9)';x.lineWidth=2;x.stroke();x.restore();
+  x.beginPath();x.arc(bx,by,8,0,Math.PI*2);
+  const gb=x.createRadialGradient(bx-2,by-2,0,bx,by,8);
+  gb.addColorStop(0,'#80a8ff');gb.addColorStop(1,'#2d6de8');
+  x.fillStyle=gb;x.fill();x.strokeStyle='#80a8ff';x.lineWidth=1;x.stroke();
+  const nx=W*.78,ny=H*.65;
+  x.beginPath();x.arc(nx,ny,6,0,Math.PI*2);
+  const gn=x.createRadialGradient(nx-1,ny-1,0,nx,ny,6);
+  gn.addColorStop(0,'#80a8ff');gn.addColorStop(1,'#2d6de8');
+  x.fillStyle=gn;x.fill();x.strokeStyle='#80a8ff';x.lineWidth=1;x.stroke();
+  const fx=W*.2,fy=H*.65;
+  x.save();x.shadowColor='#39ff14';x.shadowBlur=12;
+  x.beginPath();x.arc(fx,fy,11,0,Math.PI*2);
+  x.strokeStyle='rgba(57,255,20,0.9)';x.lineWidth=2;x.stroke();x.restore();
+  x.beginPath();x.arc(fx,fy,7,0,Math.PI*2);
+  const gf=x.createRadialGradient(fx-1,fy-1,0,fx,fy,7);
+  gf.addColorStop(0,'#80a8ff');gf.addColorStop(1,'#2d6de8');
+  x.fillStyle=gf;x.fill();x.strokeStyle='#80a8ff';x.lineWidth=1;x.stroke();
+  x.beginPath();x.moveTo(bx,by);x.lineTo(fx,fy);
+  x.strokeStyle='rgba(0,230,118,0.6)';x.lineWidth=1.5;x.setLineDash([]);x.stroke();
+  x.fillStyle='rgba(57,255,20,0.7)';x.font='bold 7px sans-serif';x.textAlign='center';
+  x.fillText('フリー！',fx,fy+18);
+  x.fillStyle='rgba(245,197,24,0.7)';x.fillText('保持者',bx,by+18);
 })();
 </script>
 </body>
