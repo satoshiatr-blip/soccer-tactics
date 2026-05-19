@@ -218,6 +218,7 @@ canvas,#canvas,#cWrap{transition:none!important;}
   <div id="modeInd" class="ind">✏️ 矢印モード</div>
   <div id="zoneInd" class="ind">⬜ ゾーン描画モード</div>
   <div id="dirInd"  class="ind">🧭 向き設定モード</div>
+  <div id="lineInd" class="ind" style="bottom:62px;">━ タップして戦術ラインを配置</div>
   <div id="memoOv"><div id="memoTx"></div></div>
 </div>
 
@@ -263,6 +264,8 @@ canvas,#canvas,#cWrap{transition:none!important;}
       <button class="tb" id="btnArrow" onclick="toggleArrow()"><span class="i">✏️</span><span class="l">矢印</span></button>
       <button class="tb" id="btnZone"  onclick="toggleZoneMode()"><span class="i">⬜</span><span class="l">ゾーン</span></button>
       <button class="tb" id="btnDir"   onclick="toggleDirMode()"><span class="i">🧭</span><span class="l">向き</span></button>
+      <button class="tb" id="btnLine"  onclick="toggleLineMode()"><span class="i">━</span><span class="l">ライン</span></button>
+      <button class="tb" id="btnLineType" onclick="cycleLineType()" style="display:none"><span class="i" id="lineTypeIco">🟦</span><span class="l" id="lineTypeLbl">守備</span></button>
       <div class="vd"></div>
       <button class="tb" onclick="undoArrow()"><span class="i">↩️</span><span class="l">戻す</span></button>
       <button class="tb rd" onclick="clearAll()"><span class="i">🗑️</span><span class="l">全消去</span></button>
@@ -506,15 +509,22 @@ let zoneMode=false,zones=[],curZone=null;
 const ZONE_COLORS=['rgba(255,100,100,0.25)','rgba(100,180,255,0.25)','rgba(100,220,100,0.25)','rgba(255,220,0,0.22)','rgba(200,100,255,0.22)'];
 let zoneColorIdx=0;
 let dirMode=false,selDirArrow='';
+let lineMode=false,lines=[],lineCurType=0;
 let tapTmr=null,tapStartX=0,tapStartY=0,longPressed=false;
 let selectedPlayer=null,coneAngles={},draggingCone=false;
 let animPhase=0,animTimer=null;
 const FW=500,FH=700;
 
+const LINE_TYPES=[
+  {label:'守備',     ico:'🟦', color:'#4a90dd', dash:[],     lw:3},
+  {label:'オフサイド',ico:'🟨', color:'#f5c518', dash:[10,6], lw:2.5},
+  {label:'プレス',   ico:'🟥', color:'#ff4455', dash:[6,4],  lw:2.5},
+];
+
 let patterns=[
-  {name:'A',players:null,arrows:[],zones:[],ball:null,memo:''},
-  {name:'B',players:null,arrows:[],zones:[],ball:null,memo:''},
-  {name:'C',players:null,arrows:[],zones:[],ball:null,memo:''},
+  {name:'A',players:null,arrows:[],zones:[],lines:[],ball:null,memo:''},
+  {name:'B',players:null,arrows:[],zones:[],lines:[],ball:null,memo:''},
+  {name:'C',players:null,arrows:[],zones:[],lines:[],ball:null,memo:''},
 ];
 
 const MCFG={
@@ -663,7 +673,7 @@ function setMode(m){
 }
 
 function applyForm(n){
-  curForm=n;players=mkPlayers(mode,n);ball={x:250,y:640,isBall:true};arrows=[];zones=[];
+  curForm=n;players=mkPlayers(mode,n);ball={x:250,y:640,isBall:true};arrows=[];zones=[];lines=[];
   selectedPlayer=null;coneAngles={};
   try{loadPhotos();}catch(e){}
   document.querySelectorAll('.fc').forEach(b=>b.classList.toggle('on',b.dataset.f===n));
@@ -678,7 +688,7 @@ function applySetPlay(k){
     ...s.b.slice(0,mode).map((q,i)=>({id:'b'+i,team:'blue',label:lb[i],name:'',dir:'',x:q.x,y:q.y})),
     ...s.r.slice(0,mode).map((q,i)=>({id:'r'+i,team:'red', label:lb[i],name:'',dir:'',x:q.x,y:q.y})),
   ];
-  ball={...s.ball,isBall:true};arrows=[];zones=[];
+  ball={...s.ball,isBall:true};arrows=[];zones=[];lines=[];
   selectedPlayer=null;coneAngles={};
   try{loadPhotos();}catch(e){}
   savePat();draw();
@@ -687,6 +697,7 @@ function applySetPlay(k){
 function flipTeams(){
   players.forEach(p=>{p.y=FH-p.y;p.team=p.team==='red'?'blue':'red';});
   ball.y=FH-ball.y;
+  lines.forEach(ln=>{ln.y=FH-ln.y;});
   selectedPlayer=null;coneAngles={};
   savePat();draw();
 }
@@ -710,6 +721,7 @@ function savePat(){
   patterns[curPat].players=JSON.parse(JSON.stringify(players));
   patterns[curPat].arrows =JSON.parse(JSON.stringify(arrows));
   patterns[curPat].zones  =JSON.parse(JSON.stringify(zones));
+  patterns[curPat].lines  =JSON.parse(JSON.stringify(lines));
   patterns[curPat].ball   =JSON.parse(JSON.stringify(ball));
   patterns[curPat].memo   =memo;
   try{savePhotos();}catch(e){}
@@ -717,13 +729,13 @@ function savePat(){
 function switchPat(i){
   savePat();curPat=i;
   const p=patterns[i];
-  if(p.players){players=JSON.parse(JSON.stringify(p.players));arrows=JSON.parse(JSON.stringify(p.arrows));zones=JSON.parse(JSON.stringify(p.zones||[]));ball=JSON.parse(JSON.stringify(p.ball));memo=p.memo||'';}
+  if(p.players){players=JSON.parse(JSON.stringify(p.players));arrows=JSON.parse(JSON.stringify(p.arrows));zones=JSON.parse(JSON.stringify(p.zones||[]));lines=JSON.parse(JSON.stringify(p.lines||[]));ball=JSON.parse(JSON.stringify(p.ball));memo=p.memo||'';}
   updateMemoOv();initPats();draw();
 }
 function addPat(){
   savePat();
   const ns=['A','B','C','D','E','F'];
-  patterns.push({name:ns[patterns.length]||String(patterns.length+1),players:null,arrows:[],zones:[],ball:null,memo:''});
+  patterns.push({name:ns[patterns.length]||String(patterns.length+1),players:null,arrows:[],zones:[],lines:[],ball:null,memo:''});
   curPat=patterns.length-1;initPats();applyForm(MCFG[mode].d);
 }
 
@@ -830,6 +842,26 @@ function drawFreeHighlight(){
     ctx.beginPath();ctx.arc(cx,cy,r+5*sX,0,Math.PI*2);
     ctx.strokeStyle=`rgba(57,255,20,${0.6+0.4*ph})`;
     ctx.lineWidth=sX*2.5;ctx.stroke();
+    ctx.restore();
+  });
+}
+
+function drawLines(){
+  if(!lines.length) return;
+  lines.forEach(ln=>{
+    const lt=LINE_TYPES[ln.type]||LINE_TYPES[0];
+    const[,cy]=C(0,ln.y);
+    ctx.save();
+    ctx.strokeStyle=lt.color;
+    ctx.lineWidth=lt.lw*sX;
+    ctx.setLineDash(lt.dash.map(v=>v*sX));
+    ctx.globalAlpha=0.85;
+    ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(canvas.width,cy);ctx.stroke();
+    ctx.setLineDash([]);ctx.globalAlpha=1;
+    ctx.fillStyle=lt.color;
+    ctx.font=`700 ${Math.round(9*sX)}px -apple-system,sans-serif`;
+    ctx.textAlign='left';ctx.textBaseline='bottom';
+    ctx.fillText(lt.label+'ライン', 6*sX, cy-3*sX);
     ctx.restore();
   });
 }
@@ -1107,7 +1139,7 @@ function drawBall(){
 function draw(){
   if(!sX||!sY||!canvas.width||!canvas.height) return;
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  drawField();drawZones();drawHeat();
+  drawField();drawZones();drawLines();drawHeat();
   drawVisionCone(selectedPlayer);
   drawPass();drawFreeHighlight();drawArrows();
   players.forEach(drawPlayer);drawBall();
@@ -1133,6 +1165,7 @@ function onStart(e){
   if(arrowMode){curArrow={pts:[{x:lx,y:ly}],c:'#ffd60a'};return;}
   if(zoneMode){curZone={x1:lx,y1:ly,x2:lx,y2:ly,col:ZONE_COLORS[zoneColorIdx%ZONE_COLORS.length]};return;}
   if(dirMode){const t=findTgt(lx,ly);if(t&&!t.isBall)openNameMo(t);return;}
+  if(lineMode){lines.push({y:ly,type:lineCurType});savePat();draw();return;}
   if(selectedPlayer&&findConeHandle(lx,ly)){draggingCone=true;return;}
   const t=findTgt(lx,ly);
   if(t&&!t.isBall){
@@ -1189,13 +1222,28 @@ function setAttackTeam(t){
   draw();
 }
 function allModesOff(){
-  arrowMode=false;zoneMode=false;dirMode=false;
+  arrowMode=false;zoneMode=false;dirMode=false;lineMode=false;
   document.getElementById('btnArrow').classList.remove('yw');
   document.getElementById('btnZone').classList.remove('gn');
   document.getElementById('btnDir').classList.remove('pu');
+  document.getElementById('btnLine').classList.remove('on');
+  document.getElementById('btnLineType').style.display='none';
   document.getElementById('modeInd').style.display='none';
   document.getElementById('zoneInd').style.display='none';
   document.getElementById('dirInd').style.display='none';
+  document.getElementById('lineInd').style.display='none';
+}
+function toggleLineMode(){
+  const was=lineMode;allModesOff();lineMode=!was;
+  document.getElementById('btnLine').classList.toggle('on',lineMode);
+  document.getElementById('btnLineType').style.display=lineMode?'flex':'none';
+  document.getElementById('lineInd').style.display=lineMode?'block':'none';
+}
+function cycleLineType(){
+  lineCurType=(lineCurType+1)%LINE_TYPES.length;
+  const lt=LINE_TYPES[lineCurType];
+  document.getElementById('lineTypeIco').textContent=lt.ico;
+  document.getElementById('lineTypeLbl').textContent=lt.label;
 }
 function toggleArrow(){
   const was=arrowMode;allModesOff();arrowMode=!was;
@@ -1217,8 +1265,9 @@ function toggleDirMode(){
 function undoArrow(){
   if(arrows.length>0){arrows.pop();draw();}
   else if(zones.length>0){zones.pop();draw();}
+  else if(lines.length>0){lines.pop();draw();}
 }
-function clearAll(){arrows=[];curArrow=null;zones=[];curZone=null;draw();}
+function clearAll(){arrows=[];curArrow=null;zones=[];curZone=null;lines=[];draw();}
 function resetPositions(){
   // 選手の位置・矢印・ゾーンをリセット（写真・名前・番号は保持）
   const backup=players.map(p=>({photo:p.photo,_photoImg:p._photoImg,name:p.name,label:p.label,dir:p.dir}));
