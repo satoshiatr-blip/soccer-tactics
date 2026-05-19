@@ -506,7 +506,9 @@ let zoneMode=false,zones=[],curZone=null;
 const ZONE_COLORS=['rgba(255,100,100,0.25)','rgba(100,180,255,0.25)','rgba(100,220,100,0.25)','rgba(255,220,0,0.22)','rgba(200,100,255,0.22)'];
 let zoneColorIdx=0;
 let dirMode=false,selDirArrow='';
-let tapTmr=null,tapStartX=0,tapStartY=0;
+let tapTmr=null,tapStartX=0,tapStartY=0,longPressed=false;
+let selectedPlayer=null,coneAngles={},draggingCone=false;
+let animPhase=0,animTimer=null;
 const FW=500,FH=700;
 
 let patterns=[
@@ -662,6 +664,7 @@ function setMode(m){
 
 function applyForm(n){
   curForm=n;players=mkPlayers(mode,n);ball={x:250,y:640,isBall:true};arrows=[];zones=[];
+  selectedPlayer=null;coneAngles={};
   try{loadPhotos();}catch(e){}
   document.querySelectorAll('.fc').forEach(b=>b.classList.toggle('on',b.dataset.f===n));
   savePat();draw();
@@ -676,6 +679,7 @@ function applySetPlay(k){
     ...s.r.slice(0,mode).map((q,i)=>({id:'r'+i,team:'red', label:lb[i],name:'',dir:'',x:q.x,y:q.y})),
   ];
   ball={...s.ball,isBall:true};arrows=[];zones=[];
+  selectedPlayer=null;coneAngles={};
   try{loadPhotos();}catch(e){}
   savePat();draw();
 }
@@ -683,6 +687,7 @@ function applySetPlay(k){
 function flipTeams(){
   players.forEach(p=>{p.y=FH-p.y;p.team=p.team==='red'?'blue':'red';});
   ball.y=FH-ball.y;
+  selectedPlayer=null;coneAngles={};
   savePat();draw();
 }
 function confirmFlip(){
@@ -755,6 +760,78 @@ function L(cx,cy){
   if(halfView==='full') return[cx/sX,cy/sY];
   const offY=halfView==='atk'?FH/2:0;
   return[cx/sX,cy/sY+offY];
+}
+
+function getBallHolder(){
+  const atks=players.filter(p=>p.team===attackTeam);
+  if(!atks.length)return null;
+  let bh=atks[0],bd=Infinity;
+  atks.forEach(p=>{const d=Math.hypot(p.x-ball.x,p.y-ball.y);if(d<bd){bd=d;bh=p;}});
+  return bh;
+}
+
+function startAnimLoop(){
+  if(animTimer)return;
+  animTimer=setInterval(()=>{animPhase=(Date.now()/800)%1;draw();},100);
+}
+function stopAnimLoop(){if(animTimer){clearInterval(animTimer);animTimer=null;}}
+function updateAnimState(){
+  const need=showPass||selectedPlayer!=null;
+  if(need&&!animTimer)startAnimLoop();
+  else if(!need&&animTimer)stopAnimLoop();
+}
+
+function getConeAngle(p){
+  return coneAngles[p.id]!==undefined?coneAngles[p.id]:(p.team==='blue'?-Math.PI/2:Math.PI/2);
+}
+function findConeHandle(lx,ly){
+  if(!selectedPlayer)return false;
+  const ang=getConeAngle(selectedPlayer);
+  const hx=selectedPlayer.x+Math.cos(ang)*175;
+  const hy=selectedPlayer.y+Math.sin(ang)*175;
+  return Math.hypot(lx-hx,ly-hy)<32;
+}
+function drawVisionCone(p){
+  if(!p)return;
+  const[cx,cy]=C(p.x,p.y),r=(mode===11?15:mode<=3?21:19)*sX;
+  const baseAng=getConeAngle(p);
+  const halfAng=Math.PI*0.4,coneLen=175*sX;
+  const grad=ctx.createRadialGradient(cx,cy,r,cx,cy,coneLen);
+  grad.addColorStop(0,'rgba(0,212,255,0.3)');
+  grad.addColorStop(0.6,'rgba(0,212,255,0.15)');
+  grad.addColorStop(1,'rgba(0,212,255,0)');
+  ctx.beginPath();ctx.moveTo(cx,cy);
+  ctx.arc(cx,cy,coneLen,baseAng-halfAng,baseAng+halfAng);
+  ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+  ctx.beginPath();ctx.moveTo(cx,cy);
+  ctx.arc(cx,cy,coneLen,baseAng-halfAng,baseAng+halfAng);
+  ctx.closePath();
+  ctx.strokeStyle='rgba(0,212,255,0.4)';ctx.lineWidth=sX;ctx.stroke();
+  const hx=cx+Math.cos(baseAng)*coneLen,hy=cy+Math.sin(baseAng)*coneLen;
+  ctx.beginPath();ctx.arc(hx,hy,10*sX,0,Math.PI*2);
+  ctx.fillStyle='rgba(0,212,255,0.9)';ctx.fill();
+  ctx.strokeStyle='#fff';ctx.lineWidth=sX*1.5;ctx.stroke();
+}
+
+function drawFreeHighlight(){
+  if(!showPass)return;
+  const atks=players.filter(p=>p.team===attackTeam);
+  const defs=players.filter(p=>p.team!==attackTeam);
+  const bh=getBallHolder();if(!bh)return;
+  const ph=0.6+0.4*Math.sin(animPhase*Math.PI*2);
+  atks.forEach(p=>{
+    if(p===bh)return;
+    if(defs.some(d=>Math.hypot(d.x-p.x,d.y-p.y)<75))return;
+    let blk=false;defs.forEach(d=>{if(psd(d.x,d.y,bh.x,bh.y,p.x,p.y)<40)blk=true;});
+    if(blk)return;
+    const[cx,cy]=C(p.x,p.y),r=(mode===11?15:mode<=3?21:19)*sX;
+    ctx.save();
+    ctx.shadowColor='#39ff14';ctx.shadowBlur=14*sX*ph;
+    ctx.beginPath();ctx.arc(cx,cy,r+5*sX,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(57,255,20,${0.6+0.4*ph})`;
+    ctx.lineWidth=sX*2.5;ctx.stroke();
+    ctx.restore();
+  });
 }
 
 function drawField(){
@@ -1030,7 +1107,9 @@ function drawBall(){
 function draw(){
   if(!sX||!sY||!canvas.width||!canvas.height) return;
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  drawField();drawZones();drawHeat();drawPass();drawArrows();
+  drawField();drawZones();drawHeat();
+  drawVisionCone(selectedPlayer);
+  drawPass();drawFreeHighlight();drawArrows();
   players.forEach(drawPlayer);drawBall();
 }
 
@@ -1050,14 +1129,16 @@ function findTgt(lx,ly){
 function onStart(e){
   e.preventDefault();
   const[lx,ly]=ePos(e);
+  longPressed=false;
   if(arrowMode){curArrow={pts:[{x:lx,y:ly}],c:'#ffd60a'};return;}
   if(zoneMode){curZone={x1:lx,y1:ly,x2:lx,y2:ly,col:ZONE_COLORS[zoneColorIdx%ZONE_COLORS.length]};return;}
   if(dirMode){const t=findTgt(lx,ly);if(t&&!t.isBall)openNameMo(t);return;}
+  if(selectedPlayer&&findConeHandle(lx,ly)){draggingCone=true;return;}
   const t=findTgt(lx,ly);
   if(t&&!t.isBall){
     tapStartX=lx;tapStartY=ly;
     tapTmr=setTimeout(()=>{
-      if(tapTmr!==null){openNameMo(t);tapTmr=null;dragging=null;}
+      if(tapTmr!==null){longPressed=true;openNameMo(t);tapTmr=null;dragging=null;}
     },350);
   }
   if(t){dragging=t;dOX=lx-t.x;dOY=ly-t.y;}
@@ -1071,15 +1152,28 @@ function onMove(e){
   }
   if(arrowMode&&curArrow){curArrow.pts.push({x:lx,y:ly});draw();return;}
   if(zoneMode&&curZone){curZone.x2=lx;curZone.y2=ly;draw();return;}
+  if(draggingCone&&selectedPlayer){
+    coneAngles[selectedPlayer.id]=Math.atan2(ly-selectedPlayer.y,lx-selectedPlayer.x);
+    draw();return;
+  }
   if(dragging){dragging.x=Math.max(10,Math.min(FW-10,lx-dOX));dragging.y=Math.max(10,Math.min(FH-10,ly-dOY));draw();}
 }
 function onEnd(e){
   e.preventDefault();
+  const wasTap=tapTmr!==null;
   if(tapTmr){clearTimeout(tapTmr);tapTmr=null;}
+  if(draggingCone){draggingCone=false;return;}
   if(arrowMode&&curArrow){if(curArrow.pts.length>2)arrows.push(curArrow);curArrow=null;draw();return;}
   if(zoneMode&&curZone){
     if(Math.abs(curZone.x2-curZone.x1)>10&&Math.abs(curZone.y2-curZone.y1)>10){zones.push(curZone);zoneColorIdx++;}
     curZone=null;draw();return;
+  }
+  if(wasTap&&!longPressed&&dragging&&!dragging.isBall){
+    const moved=Math.hypot(dragging.x-(tapStartX-dOX),dragging.y-(tapStartY-dOY));
+    if(moved<5){
+      selectedPlayer=(selectedPlayer===dragging)?null:dragging;
+      dragging=null;draw();return;
+    }
   }
   if(dragging)savePat();
   dragging=null;
@@ -1108,7 +1202,7 @@ function toggleArrow(){
   document.getElementById('btnArrow').classList.toggle('yw',arrowMode);
   document.getElementById('modeInd').style.display=arrowMode?'block':'none';
 }
-function togglePass(){showPass=!showPass;document.getElementById('btnPass').classList.toggle('on',showPass);draw();}
+function togglePass(){showPass=!showPass;document.getElementById('btnPass').classList.toggle('on',showPass);updateAnimState();draw();}
 function toggleHeat(){showHeat=!showHeat;document.getElementById('btnHeat').classList.toggle('on',showHeat);draw();}
 function toggleZoneMode(){
   const was=zoneMode;allModesOff();zoneMode=!was;
@@ -1414,7 +1508,7 @@ function init(){
   if(bp) bp.classList.add('on');
 
   // サイズ計算（DOM確定を待つ）
-  setTimeout(resize, 100);
+  setTimeout(()=>{resize();updateAnimState();}, 100);
   try{loadPhotos();}catch(e){}
 
   // 初回ヘルプ
