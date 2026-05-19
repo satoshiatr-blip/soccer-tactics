@@ -509,7 +509,7 @@ let zoneMode=false,zones=[],curZone=null;
 const ZONE_COLORS=['rgba(255,100,100,0.25)','rgba(100,180,255,0.25)','rgba(100,220,100,0.25)','rgba(255,220,0,0.22)','rgba(200,100,255,0.22)'];
 let zoneColorIdx=0;
 let dirMode=false,selDirArrow='';
-let lineMode=false,lines=[],lineCurType=0;
+let lineMode=false,lines=[],lineCurType=0,draggingLine=-1,lineDragStartY=0;
 let tapTmr=null,tapStartX=0,tapStartY=0,longPressed=false;
 let selectedPlayer=null,coneAngles={},draggingCone=false;
 let animPhase=0,animTimer=null;
@@ -1165,7 +1165,11 @@ function onStart(e){
   if(arrowMode){curArrow={pts:[{x:lx,y:ly}],c:'#ffd60a'};return;}
   if(zoneMode){curZone={x1:lx,y1:ly,x2:lx,y2:ly,col:ZONE_COLORS[zoneColorIdx%ZONE_COLORS.length]};return;}
   if(dirMode){const t=findTgt(lx,ly);if(t&&!t.isBall)openNameMo(t);return;}
-  if(lineMode){lines.push({y:ly,type:lineCurType});savePat();draw();return;}
+  if(lineMode){
+    const li=lines.findIndex(ln=>Math.abs(ly-ln.y)<15);
+    if(li>=0){draggingLine=li;lineDragStartY=ly;return;}
+    lines.push({y:ly,type:lineCurType});savePat();draw();return;
+  }
   if(selectedPlayer&&findConeHandle(lx,ly)){draggingCone=true;return;}
   const t=findTgt(lx,ly);
   if(t&&!t.isBall){
@@ -1185,6 +1189,7 @@ function onMove(e){
   }
   if(arrowMode&&curArrow){curArrow.pts.push({x:lx,y:ly});draw();return;}
   if(zoneMode&&curZone){curZone.x2=lx;curZone.y2=ly;draw();return;}
+  if(lineMode&&draggingLine>=0){lines[draggingLine].y=Math.max(5,Math.min(FH-5,ly));draw();return;}
   if(draggingCone&&selectedPlayer){
     coneAngles[selectedPlayer.id]=Math.atan2(ly-selectedPlayer.y,lx-selectedPlayer.x);
     draw();return;
@@ -1195,6 +1200,10 @@ function onEnd(e){
   e.preventDefault();
   const wasTap=tapTmr!==null;
   if(tapTmr){clearTimeout(tapTmr);tapTmr=null;}
+  if(lineMode&&draggingLine>=0){
+    if(Math.abs(ly-lineDragStartY)<5){lines.splice(draggingLine,1);}
+    draggingLine=-1;savePat();draw();return;
+  }
   if(draggingCone){draggingCone=false;return;}
   if(arrowMode&&curArrow){if(curArrow.pts.length>2)arrows.push(curArrow);curArrow=null;draw();return;}
   if(zoneMode&&curZone){
