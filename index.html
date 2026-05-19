@@ -1148,7 +1148,7 @@ function draw(){
 // ── INTERACTION ──
 function ePos(e){
   const r=canvas.getBoundingClientRect();
-  const src=e.touches?e.touches[0]:e;
+  const src=(e.changedTouches&&e.changedTouches[0])||(e.touches&&e.touches[0])||e;
   return L(src.clientX-r.left,src.clientY-r.top);
 }
 function findTgt(lx,ly){
@@ -1198,6 +1198,7 @@ function onMove(e){
 }
 function onEnd(e){
   e.preventDefault();
+  const[lx,ly]=ePos(e);
   const wasTap=tapTmr!==null;
   if(tapTmr){clearTimeout(tapTmr);tapTmr=null;}
   if(lineMode&&draggingLine>=0){
