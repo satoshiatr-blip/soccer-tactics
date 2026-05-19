@@ -1201,9 +1201,9 @@ function onEnd(e){
   const[lx,ly]=ePos(e);
   const wasTap=tapTmr!==null;
   if(tapTmr){clearTimeout(tapTmr);tapTmr=null;}
-  if(lineMode&&draggingLine>=0){
-    if(Math.abs(ly-lineDragStartY)<5){lines.splice(draggingLine,1);}
-    draggingLine=-1;savePat();draw();return;
+  if(draggingLine>=0){
+    if(lineMode&&Math.abs(ly-lineDragStartY)<5){lines.splice(draggingLine,1);}
+    draggingLine=-1;if(lineMode){savePat();draw();return;}
   }
   if(draggingCone){draggingCone=false;return;}
   if(arrowMode&&curArrow){if(curArrow.pts.length>2)arrows.push(curArrow);curArrow=null;draw();return;}
@@ -1222,7 +1222,7 @@ function onEnd(e){
   dragging=null;
 }
 canvas.addEventListener('mousedown',onStart);canvas.addEventListener('mousemove',onMove);canvas.addEventListener('mouseup',onEnd);
-canvas.addEventListener('touchstart',onStart,{passive:false});canvas.addEventListener('touchmove',onMove,{passive:false});canvas.addEventListener('touchend',onEnd,{passive:false});
+canvas.addEventListener('touchstart',onStart,{passive:false});canvas.addEventListener('touchmove',onMove,{passive:false});canvas.addEventListener('touchend',onEnd,{passive:false});canvas.addEventListener('touchcancel',onEnd,{passive:false});
 
 // ── CONTROLS ──
 function setAttackTeam(t){
