@@ -677,7 +677,7 @@ function applyForm(n){
   selectedPlayer=null;coneAngles={};
   try{loadPhotos();}catch(e){}
   document.querySelectorAll('.fc').forEach(b=>b.classList.toggle('on',b.dataset.f===n));
-  savePat();draw();
+  updateAnimState();savePat();draw();
 }
 
 function applySetPlay(k){
@@ -691,7 +691,7 @@ function applySetPlay(k){
   ball={...s.ball,isBall:true};arrows=[];zones=[];lines=[];
   selectedPlayer=null;coneAngles={};
   try{loadPhotos();}catch(e){}
-  savePat();draw();
+  updateAnimState();savePat();draw();
 }
 
 function flipTeams(){
@@ -699,7 +699,7 @@ function flipTeams(){
   ball.y=FH-ball.y;
   lines.forEach(ln=>{ln.y=FH-ln.y;});
   selectedPlayer=null;coneAngles={};
-  savePat();draw();
+  updateAnimState();savePat();draw();
 }
 function confirmFlip(){
   showToast('↕️ コートチェンジしました');
@@ -1170,8 +1170,8 @@ function onStart(e){
     if(li>=0){draggingLine=li;lineDragStartY=ly;return;}
     lines.push({y:ly,type:lineCurType});savePat();draw();return;
   }
-  if(selectedPlayer&&findConeHandle(lx,ly)){draggingCone=true;return;}
   const t=findTgt(lx,ly);
+  if(!t&&selectedPlayer&&findConeHandle(lx,ly)){draggingCone=true;return;}
   if(t&&!t.isBall){
     tapStartX=lx;tapStartY=ly;
     tapTmr=setTimeout(()=>{
@@ -1233,6 +1233,8 @@ function setAttackTeam(t){
 }
 function allModesOff(){
   arrowMode=false;zoneMode=false;dirMode=false;lineMode=false;
+  if(tapTmr){clearTimeout(tapTmr);tapTmr=null;longPressed=false;}
+  dragging=null;draggingCone=false;draggingLine=-1;
   document.getElementById('btnArrow').classList.remove('yw');
   document.getElementById('btnZone').classList.remove('gn');
   document.getElementById('btnDir').classList.remove('pu');
