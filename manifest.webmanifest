@@ -1,0 +1,12 @@
+{
+  "name": "TACTICS BOARD",
+  "short_name": "TACTICS BOARD",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#060d1a",
+  "theme_color": "#060d1a",
+  "icons": [
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
