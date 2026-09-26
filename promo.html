@@ -228,6 +228,8 @@ body{
   color:rgba(200,240,200,0.4);
 }
 canvas{display:block;border-radius:6px;}
+/* 日本語を単語の途中で折らない（改行は助詞・読点の後ろだけ。印はページ末尾のスクリプトで付ける） */
+body{word-break:keep-all;overflow-wrap:anywhere;line-break:strict;}
 </style>
 </head>
 <body>
@@ -280,7 +282,7 @@ canvas{display:block;border-radius:6px;}
       <div class="sn">3</div>
       <div>
         <div class="st">💾 保存してLINEで共有</div>
-        <div class="sd">写真保存 or QRコードで即送信</div>
+        <div class="sd">写真で保存、またはQRコードですぐ送れます</div>
       </div>
       <div class="stag">LINEで送れる</div>
     </div>
@@ -300,8 +302,8 @@ canvas{display:block;border-radius:6px;}
     <div class="hc-body">
       <div class="hc-text">
         <p class="hc-desc">
-          守備の手薄エリアを<strong>4色でリアルタイム表示</strong>。<br>
-          選手を動かすと色が即更新。<br>
+          守備が手薄なエリアを、<br><strong>4色でリアルタイム表示</strong>。<br>
+          選手を動かすと、色もすぐ変わる。<br>
           「ここへ走れ！」が一目で伝わる。
         </p>
         <div class="legend">
@@ -356,9 +358,9 @@ canvas{display:block;border-radius:6px;}
     <div class="hc-body">
       <div class="hc-text">
         <p class="hc-desc">
-          選手をタップすると<strong>シアン色の視野コーン</strong>が出現。<br>
-          先端のハンドルをドラッグして向きを自由に変更。<br>
-          「どこを見ているか」を瞬時に可視化。
+          選手をタップすると、<br><strong>シアン色の視野コーン</strong>が出る。<br>
+          先端をドラッグして、向きを自由に変えられる。<br>
+          見ている方向がすぐ分かる。
         </p>
         <div class="legend">
           <div class="li"><div class="ld" style="background:rgba(0,212,255,0.6);"></div>タップでコーン表示</div>
@@ -380,9 +382,9 @@ canvas{display:block;border-radius:6px;}
     <div class="hc-body">
       <div class="hc-text">
         <p class="hc-desc">
-          マークが外れた選手を<strong>ライムグリーンで自動発光</strong>。<br>
-          パスコースが通っている選手のみ表示。<br>
-          「ここ空いてる！」が子供でも一目で分かる。
+          マークが外れた選手を、<br><strong>ライムグリーンで自動で光らせる</strong>。<br>
+          パスが通る選手だけを表示。<br>
+          「ここ空いてる！」が子どもでも一目で分かる。
         </p>
         <div class="legend">
           <div class="li"><div style="width:11px;height:11px;border-radius:50%;border:2px solid #39ff14;box-shadow:0 0 5px #39ff14;flex-shrink:0;"></div>フリー選手（点滅発光）</div>
@@ -403,7 +405,7 @@ canvas{display:block;border-radius:6px;}
   <div class="ops">
     <div class="op">
       <div class="oi">👆</div>
-      <div><div class="ot">ドラッグで選手・ボールを移動</div><div class="od">動かすたびにパスライン・スペースマップが即更新</div></div>
+      <div><div class="ot">ドラッグで選手・ボールを移動</div><div class="od">動かすたびに、パスラインと色の地図がすぐ変わる</div></div>
       <div class="otag">1本指</div>
     </div>
     <div class="op">
@@ -423,7 +425,7 @@ canvas{display:block;border-radius:6px;}
     </div>
     <div class="op">
       <div class="oi">⚔️</div>
-      <div><div class="ot">攻撃・守備の半面を2倍拡大</div><div class="od">表示グループの攻撃/守備半面ボタン</div></div>
+      <div><div class="ot">攻撃・守備の半面を2倍拡大</div><div class="od">表示グループの半面ボタンで切り替え</div></div>
       <div class="otag">表示グループ</div>
     </div>
     <div class="op">
@@ -658,6 +660,14 @@ canvas{display:block;border-radius:6px;}
   x.fillStyle='rgba(57,255,20,0.7)';x.font='bold 7px sans-serif';x.textAlign='center';
   x.fillText('フリー！',fx,fy+18);
   x.fillStyle='rgba(245,197,24,0.7)';x.fillText('保持者',bx,by+18);
+})();
+</script>
+<script>
+// 助詞・読点の後ろに改行できる印（ゼロ幅スペース）を入れる。続く文字がひらがなのとき（「できます」の「で」など）と「その」「この」の後ろには入れない
+(function(){
+  var re=/((?:[はがをにでともへや、。」）]|(?<![そこあど])の))(?=[^ぁ-ゟ、。」）！？!?\s])/g;
+  var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT),n;
+  while((n=w.nextNode())){ if(/[぀-鿿]/.test(n.data)&&!/^(SCRIPT|STYLE)$/.test(n.parentNode.nodeName)) n.data=n.data.replace(re,'$1​'); }
 })();
 </script>
 </body>
