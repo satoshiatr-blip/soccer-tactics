@@ -266,7 +266,7 @@ body{word-break:keep-all;overflow-wrap:anywhere;line-break:strict;}
       <div class="sn">1</div>
       <div>
         <div class="st">📱 URLをSafariで開く</div>
-        <div class="sd">アプリ不要。iPhone / iPad / PC 対応。共有ボタン→「ホーム画面に追加」でアプリのように起動もできます</div>
+        <div class="sd">インストール不要。iPhone・iPad・PCに対応。iPhone・iPadでは、Safariの共有ボタンから「ホーム画面に追加」すると、アプリのように開けます</div>
       </div>
       <div class="stag">即起動</div>
     </div>
@@ -274,7 +274,7 @@ body{word-break:keep-all;overflow-wrap:anywhere;line-break:strict;}
       <div class="sn">2</div>
       <div>
         <div class="st">⚽ 人数・陣形を選んで配置</div>
-        <div class="sd">3〜11人制。選手はドラッグで自由に移動</div>
+        <div class="sd">3・5・8・11人制から選べます。選手はドラッグで自由に動かせます</div>
       </div>
       <div class="stag">14種の陣形</div>
     </div>
@@ -282,7 +282,7 @@ body{word-break:keep-all;overflow-wrap:anywhere;line-break:strict;}
       <div class="sn">3</div>
       <div>
         <div class="st">💾 保存してLINEで共有</div>
-        <div class="sd">写真で保存、またはQRコードですぐ送れます</div>
+        <div class="sd">作戦図を画像で保存したり、QRコードで共有したりできます</div>
       </div>
       <div class="stag">LINEで送れる</div>
     </div>
@@ -302,7 +302,7 @@ body{word-break:keep-all;overflow-wrap:anywhere;line-break:strict;}
     <div class="hc-body">
       <div class="hc-text">
         <p class="hc-desc">
-          守備が手薄なエリアを、<br><strong>4色でリアルタイム表示</strong>。<br>
+          守備の薄い所を、<br><strong>4色で表示</strong>。<br>
           選手を動かすと、色もすぐ変わる。<br>
           「ここへ走れ！」が一目で伝わる。
         </p>
@@ -331,11 +331,11 @@ body{word-break:keep-all;overflow-wrap:anywhere;line-break:strict;}
       <div class="pc-legend">
         <div class="pl">
           <div class="pl-line" style="background:rgba(255,80,80,0.9);height:3px;"></div>
-          <div class="pl-t"><strong>太い実線</strong><span>オープンなコース</span></div>
+          <div class="pl-t"><strong>太い実線</strong><span>通せるコース</span></div>
         </div>
         <div class="pl">
           <div class="pl-line" style="background:repeating-linear-gradient(90deg,rgba(255,140,140,0.5) 0,rgba(255,140,140,0.5) 4px,transparent 4px,transparent 7px);height:2px;"></div>
-          <div class="pl-t"><strong>細い点線</strong><span>ブロックされたコース</span></div>
+          <div class="pl-t"><strong>細い点線</strong><span>通せないコース</span></div>
         </div>
         <div class="pl">
           <div style="width:18px;height:18px;border-radius:50%;border:2px solid #f5c518;box-shadow:0 0 5px #f5c518;flex-shrink:0;"></div>
@@ -352,19 +352,19 @@ body{word-break:keep-all;overflow-wrap:anywhere;line-break:strict;}
   <!-- VISION CONE CARD -->
   <div class="heat-card" style="border-color:rgba(0,212,255,0.2);background:rgba(0,212,255,0.03);margin-top:16px;">
     <div class="hc-head" style="border-bottom-color:rgba(0,212,255,0.1);">
-      <div class="hc-title" style="color:#00d4ff;">👁 視野コーン</div>
+      <div class="hc-title" style="color:#00d4ff;">👁 視野の表示</div>
       <div class="hc-badge" style="color:#00d4ff;background:rgba(0,212,255,0.1);border-color:rgba(0,212,255,0.2);">視野</div>
     </div>
     <div class="hc-body">
       <div class="hc-text">
         <p class="hc-desc">
-          選手をタップすると、<br><strong>シアン色の視野コーン</strong>が出る。<br>
-          先端をドラッグして、向きを自由に変えられる。<br>
+          選手をタップすると、<br><strong>視野の扇形</strong>が出る。<br>
+          先端をドラッグして、向きを変えられる。<br>
           見ている方向がすぐ分かる。
         </p>
         <div class="legend">
           <div class="li"><div class="ld" style="background:rgba(0,212,255,0.6);"></div>タップでコーン表示</div>
-          <div class="li"><div class="ld" style="background:#00d4ff;border-radius:50%;border:1.5px solid #fff;"></div>先端ハンドルで方向変更</div>
+          <div class="li"><div class="ld" style="background:#00d4ff;border-radius:50%;border:1.5px solid #fff;"></div>扇形の先端をドラッグして向きを変更</div>
         </div>
       </div>
       <div class="hc-canvas">
@@ -383,7 +383,7 @@ body{word-break:keep-all;overflow-wrap:anywhere;line-break:strict;}
       <div class="hc-text">
         <p class="hc-desc">
           マークが外れた選手を、<br><strong>ライムグリーンで自動で光らせる</strong>。<br>
-          パスが通る選手だけを表示。<br>
+          パスコースが空いている選手を光らせる。<br>
           「ここ空いてる！」が子どもでも一目で分かる。
         </p>
         <div class="legend">
@@ -405,12 +405,12 @@ body{word-break:keep-all;overflow-wrap:anywhere;line-break:strict;}
   <div class="ops">
     <div class="op">
       <div class="oi">👆</div>
-      <div><div class="ot">ドラッグで選手・ボールを移動</div><div class="od">動かすたびに、パスラインと色の地図がすぐ変わる</div></div>
+      <div><div class="ot">ドラッグで選手・ボールを移動</div><div class="od">動かすたびに、パスラインとスペースマップがすぐ変わる</div></div>
       <div class="otag">1本指</div>
     </div>
     <div class="op">
       <div class="oi">👁</div>
-      <div><div class="ot">タップで視野コーンを表示</div><div class="od">シアンの扇形が出現。先端ハンドルをドラッグで方向を自由に変更</div></div>
+      <div><div class="ot">タップで視野を表示</div><div class="od">水色の扇形が出ます。扇形の先端をドラッグすると、向きを自由に変えられます</div></div>
       <div class="otag">タップ</div>
     </div>
     <div class="op">
@@ -420,18 +420,18 @@ body{word-break:keep-all;overflow-wrap:anywhere;line-break:strict;}
     </div>
     <div class="op">
       <div class="oi">✏️</div>
-      <div><div class="ot">矢印・ゾーンで動きを書き込む</div><div class="od">描画グループをONにして指でなぞる</div></div>
-      <div class="otag">描画グループ</div>
+      <div><div class="ot">矢印・ゾーンで動きを書き込む</div><div class="od">画面の「描画」をオンにして、指でなぞる</div></div>
+      <div class="otag">「描画」</div>
     </div>
     <div class="op">
       <div class="oi">⚔️</div>
-      <div><div class="ot">攻撃・守備の半面を2倍拡大</div><div class="od">表示グループの半面ボタンで切り替え</div></div>
-      <div class="otag">表示グループ</div>
+      <div><div class="ot">攻撃・守備の半面を2倍拡大</div><div class="od">「表示」の半面ボタンで切り替え</div></div>
+      <div class="otag">「表示」</div>
     </div>
     <div class="op">
       <div class="oi">🗂️</div>
-      <div><div class="ot">A/B/Cタブで複数作戦を保存</div><div class="od">最大6パターン。切り替え一瞬</div></div>
-      <div class="otag">作戦グループ</div>
+      <div><div class="ot">A〜Fタブで複数の作戦を保存</div><div class="od">最大6パターン。タップですぐ切り替え</div></div>
+      <div class="otag">「作戦」</div>
     </div>
   </div>
 </div>
@@ -464,9 +464,9 @@ body{word-break:keep-all;overflow-wrap:anywhere;line-break:strict;}
     <div class="scn">
       <div class="scn-h"><span class="scn-ico">⚡</span><span class="scn-ttl">セットプレー説明</span></div>
       <div class="scn-steps">
-        <div class="ss"><span class="ssn">1</span><span class="sst"><strong>セットプレー選択</strong> CK・FKを一発呼び出し</span></div>
+        <div class="ss"><span class="ssn">1</span><span class="sst"><strong>セットプレー選択</strong> コーナーキック・フリーキックの配置をすぐ呼び出し</span></div>
         <div class="ss"><span class="ssn">2</span><span class="sst"><strong>攻撃半面表示</strong> 2倍拡大でわかりやすく</span></div>
-        <div class="ss"><span class="ssn">3</span><span class="sst"><strong>ゾーン・矢印で描く</strong> ターゲットと動線を明示</span></div>
+        <div class="ss"><span class="ssn">3</span><span class="sst"><strong>ゾーン・矢印で描く</strong> ボールを送る先と、選手が動く道筋を描く</span></div>
       </div>
     </div>
 
