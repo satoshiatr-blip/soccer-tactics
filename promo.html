@@ -6,6 +6,12 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-512.png">
 <title>TACTICS BOARD</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="TACTICS BOARD">
+<meta property="og:description" content="動かして伝わる作戦ボード。少年サッカー向けの無料Webアプリ">
+<meta property="og:url" content="https://satoshiatr-blip.github.io/soccer-tactics/promo.html">
+<meta property="og:image" content="https://satoshiatr-blip.github.io/soccer-tactics/og-tactics.png">
+<meta name="twitter:card" content="summary_large_image">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;700;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -25,7 +31,7 @@ body{
 
 /* ─── LABEL ─── */
 .lbl{
-  font-size:9px;font-weight:700;letter-spacing:3px;
+  font-size:11px;font-weight:700;letter-spacing:3px;
   color:#4ade80;text-transform:uppercase;
   margin-bottom:4px;
 }
@@ -38,7 +44,7 @@ body{
 }
 .hero-tag{
   display:inline-flex;align-items:center;gap:6px;
-  font-size:9px;font-weight:700;letter-spacing:2px;color:#4ade80;
+  font-size:11px;font-weight:700;letter-spacing:2px;color:#4ade80;
   background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);
   padding:5px 12px;border-radius:100px;margin-bottom:20px;
 }
@@ -76,7 +82,7 @@ body{
   padding:14px 8px;text-align:center;
 }
 .stat-n{font-family:'Bebas Neue',sans-serif;font-size:26px;color:#4ade80;line-height:1;}
-.stat-l{font-size:9px;color:rgba(200,240,200,0.4);margin-top:2px;letter-spacing:0.5px;}
+.stat-l{font-size:11px;color:rgba(200,240,200,0.6);margin-top:2px;letter-spacing:0.5px;}
 
 /* ─── STEPS ─── */
 .steps{display:flex;flex-direction:column;gap:8px;}
@@ -95,7 +101,7 @@ body{
 .sd{font-size:11px;color:rgba(200,240,200,0.45);margin-top:2px;}
 .stag{
   margin-left:auto;flex-shrink:0;
-  font-size:9px;font-weight:700;
+  font-size:11px;font-weight:700;
   color:rgba(74,222,128,0.6);
   background:rgba(74,222,128,0.07);
   border:1px solid rgba(74,222,128,0.15);
@@ -117,7 +123,7 @@ body{
 }
 .hc-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:#4ade80;}
 .hc-badge{
-  font-size:8px;font-weight:700;letter-spacing:1px;
+  font-size:11px;font-weight:700;letter-spacing:1px;
   color:#f5c518;background:rgba(245,197,24,0.1);
   border:1px solid rgba(245,197,24,0.2);
   padding:3px 8px;border-radius:100px;
@@ -175,7 +181,7 @@ body{
 .od{font-size:11px;color:rgba(200,240,200,0.45);margin-top:2px;}
 .otag{
   margin-left:auto;flex-shrink:0;
-  font-size:9px;font-weight:700;color:rgba(200,240,200,0.35);
+  font-size:11px;font-weight:700;color:rgba(200,240,200,0.35);
   background:rgba(255,255,255,0.04);
   border:1px solid rgba(255,255,255,0.07);
   padding:3px 8px;border-radius:100px;white-space:nowrap;
@@ -205,7 +211,7 @@ body{
 .ssn{
   width:18px;height:18px;border-radius:50%;
   background:rgba(74,222,128,0.1);color:#4ade80;
-  font-size:9px;font-weight:700;
+  font-size:11px;font-weight:700;
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0;margin-top:1px;
 }
@@ -235,26 +241,32 @@ body{word-break:keep-all;overflow-wrap:anywhere;line-break:strict;}
 .vmodal.open{display:flex;}
 .vmodal video{max-width:100%;max-height:calc(100vh - 80px);border-radius:14px;background:#000;}
 .vclose{position:absolute;top:12px;right:12px;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:#fff;font-size:20px;cursor:pointer;}
+.hub{display:inline-flex;align-items:center;gap:6px;min-height:44px;font-size:13px;font-weight:700;color:rgba(200,240,200,0.6);text-decoration:none;}
+.hub b{color:#4ade80;font-weight:900;letter-spacing:1px;}
+.hub-top{margin:-36px 0 16px;}
+.hub-bottom{margin-top:22px;}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 
 <!-- HERO -->
 <div class="hero">
+  <a class="hub hub-top" href="https://satoshiatr-blip.github.io/match-kit/">&#8592; <b>MATCH KIT</b> ほかのアプリを見る</a>
   <div class="hero-tag"><span class="live"></span>少年サッカー向け 無料Webアプリ</div>
   <div class="hero-h1">TACTICS<em>BOARD</em></div>
   <p class="hero-desc">
     コーチの説明が<strong>劇的に伝わるデジタル作戦ボード</strong>。<br>
     視野・フリー選手・パスコースを自動可視化。
   </p>
-  <a href="https://satoshiatr-blip.github.io/soccer-tactics/" target="_blank" style="text-decoration:none;display:block;">
+  <a href="https://satoshiatr-blip.github.io/soccer-tactics/" style="text-decoration:none;display:block;">
     <div style="background:rgba(74,222,128,0.12);border:2px solid rgba(74,222,128,0.5);border-radius:14px;padding:18px 20px;text-align:center;transition:all 0.2s;">
       <div style="font-size:11px;color:rgba(74,222,128,0.6);letter-spacing:2px;font-weight:700;margin-bottom:6px;">インストール不要・完全無料</div>
-      <div style="font-size:22px;font-weight:900;color:#4ade80;letter-spacing:1px;">▶ タップして開く</div>
+      <div style="font-size:22px;font-weight:900;color:#4ade80;letter-spacing:1px;">無料でアプリを使う</div>
       <div style="font-size:10px;color:rgba(74,222,128,0.45);margin-top:6px;font-family:'Space Mono',monospace;">satoshiatr-blip.github.io/soccer-tactics/</div>
     </div>
   </a>
-  <button class="vbtn" type="button" onclick="openVideo()">&#9654; 動画を見る</button>
+  <button class="vbtn" type="button" onclick="openVideo()">&#9654; 動画を見る（31秒）</button>
   <div class="vmodal" id="vmodal" onclick="if(event.target===this)closeVideo()">
     <button class="vclose" type="button" aria-label="閉じる" onclick="closeVideo()">&#10005;</button>
     <video id="vplayer" src="promo-reel.mp4" controls playsinline preload="none"></video>
@@ -488,10 +500,10 @@ body{word-break:keep-all;overflow-wrap:anywhere;line-break:strict;}
   <div class="lbl" style="margin-bottom:8px;">今すぐ無料で使う</div>
   <div class="cta-h">OPEN & PLAY</div>
   <p class="cta-s">登録・インストール不要。タップするだけで即起動。</p>
-  <a href="https://satoshiatr-blip.github.io/soccer-tactics/" target="_blank" style="text-decoration:none;display:block;">
+  <a href="https://satoshiatr-blip.github.io/soccer-tactics/" style="text-decoration:none;display:block;">
     <div style="background:rgba(74,222,128,0.12);border:2px solid rgba(74,222,128,0.5);border-radius:14px;padding:18px 20px;text-align:center;">
       <div style="font-size:11px;color:rgba(74,222,128,0.6);letter-spacing:2px;font-weight:700;margin-bottom:6px;">完全無料・今すぐ使える</div>
-      <div style="font-size:22px;font-weight:900;color:#4ade80;letter-spacing:1px;">▶ タップして開く</div>
+      <div style="font-size:22px;font-weight:900;color:#4ade80;letter-spacing:1px;">無料でアプリを使う</div>
       <div style="font-size:10px;color:rgba(74,222,128,0.45);margin-top:6px;font-family:'Space Mono',monospace;">satoshiatr-blip.github.io/soccer-tactics/</div>
     </div>
   </a>
@@ -501,6 +513,7 @@ body{word-break:keep-all;overflow-wrap:anywhere;line-break:strict;}
     <span class="chip">✓ インストール不要</span>
     <span class="chip">✓ オフライン動作</span>
   </div>
+  <a class="hub hub-bottom" href="https://satoshiatr-blip.github.io/match-kit/">&#8592; <b>MATCH KIT</b> ほかのアプリを見る</a>
 </div>
 
 <script>
